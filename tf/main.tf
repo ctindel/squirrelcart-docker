@@ -35,18 +35,6 @@ variable env {
   description = "dev/prod"
 }
 
-resource "aws_s3_bucket" "s3_bucket" {
-  bucket  = "${var.name}"
-  acl     = "private"
-  region  = "${var.region}"
-  force_destroy = false
-
-  tags {
-    Name = "${var.name}-${var.region}"
-    Type = "Primary"
-  }
-}
-
 data "aws_ami" "ctindel-squirrel-ami" {
   most_recent = true
   filter {
