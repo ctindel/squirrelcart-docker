@@ -1,0 +1,32 @@
+version: '2.1'
+services:
+
+  mysql:
+    image: mysql
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: "test"
+      MYSQL_USER: "test"
+      MYSQL_PASSWORD: "test"
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    networks:
+      app-net:
+        aliases:
+          - db
+    ports:
+      - 3306:3306
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    networks:
+      app-net:
+    ports:
+      - 8080:8080
+
+networks:
+  app-net:
+    driver: bridge

@@ -1,0 +1,54 @@
+{
+  "variables": {
+    "aws_access_key_id": "{{env `AWS_ACCESS_KEY_ID`}}",
+    "aws_secret_key": "{{env `AWS_SECRET_ACCESS_KEY`}}",
+    "aws_default_region": "{{env `AWS_DEFAULT_REGION`}}"
+  },
+  "builders": [{
+    "type": "amazon-ebs",
+    "access_key": "{{user `aws_access_key_id`}}",
+    "secret_key": "{{user `aws_secret_key`}}",
+    "region": "us-east-2",
+    "source_ami": "ami-1690b173",
+    "instance_type": "m4.2xlarge",
+    "ssh_username": "centos",
+    "ssh_keypair_name": "ctindel_elastic",
+    "ssh_private_key_file": "/home/elastic/.ssh/ctindel_elastic",
+    "ami_name": "ctindel-squirrel",
+    "ami_description": "Chad ctindel Tindel squirrelcart",
+    "force_deregister": "true",
+    "subnet_id": "subnet-19527870",
+    "security_group_ids" : [ "sg-e4bc8f8c" ],
+    "associate_public_ip_address" : true
+  }],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "/home/elastic/.ssh/ctindel_elastic.pub",
+      "destination": "/var/tmp/centos.pub"
+    },
+    {
+      "type": "file",
+      "source": "/home/elastic/.ssh/ctindel_elastic",
+      "destination": "/var/tmp/centos.key"
+    },
+    {
+      "type": "file",
+      "source": "files/update_route53_mapping.sh",
+      "destination": "/var/tmp/update_route53_mapping.sh"
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo '{{user `password`}}' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+      "environment_vars" : [
+          "AWS_ACCESS_KEY_ID={{user `aws_access_key_id`}}",
+          "AWS_SECRET_ACCESS_KEY={{user `aws_secret_key`}}",
+          "AWS_DEFAULT_REGION={{user `aws_default_region`}}"
+      ],
+      "scripts": [
+        "scripts/common/setup_utils.sh",
+        "scripts/ubuntu/install_aws.sh"
+      ]
+    }
+  ]
+}
