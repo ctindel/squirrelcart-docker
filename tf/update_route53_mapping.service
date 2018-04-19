@@ -1,0 +1,21 @@
+[Unit]
+Description=Update Route53 Mapping
+After=network.target auditd.service
+
+[Service]
+StartLimitInterval=0
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+ExecReload=/usr/bin/kill -HUP $MAINPID
+KillSignal=SIGQUIT
+KillMode=mixed
+RemainAfterExit=yes
+Restart=on-failure
+User=root
+ExecStartPre=/bin/echo "Running update_route53_mapping.sh"
+ExecStart=/root/bin/update_route53_mapping.sh
+ExecStop=/bin/true
+
+[Install]
+WantedBy=multi-user.target

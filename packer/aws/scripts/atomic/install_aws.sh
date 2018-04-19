@@ -2,9 +2,17 @@
 
 mkdir -p /home/centos/.aws
 
-echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> /home/centos/.profile
-echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> /home/centos/.profile
-echo "export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION" >> /home/centos/.profile
+docker pull peopleperhour/ec2-metadata
+docker pull mesosphere/aws-cli
+
+cat << EOF >> /home/centos/.bash_profile
+alias aws='docker run --rm -t $(tty &>/dev/null && echo "-i") -e "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" -e "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" -e "AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}" -v "$(pwd):/project" mesosphere/aws-cli'
+
+export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
+EOF
+
 cat << EOF > /home/centos/.aws/config
 [default]
 region = us-east-2
@@ -17,9 +25,13 @@ aws_access_key_id = $AWS_ACCESS_KEY_ID
 EOF
 
 mkdir -p /root/.aws
-echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> /root/.profile
-echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> /root/.profile
-echo "export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION" >> /root/.profile
+cat << EOF >> /root/.bash_profile
+alias aws='docker run --rm -t $(tty &>/dev/null && echo "-i") -e "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" -e "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" -e "AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}" -v "$(pwd):/project" mesosphere/aws-cli'
+
+export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
+EOF
 cat << EOF > /root/.aws/config
 [default]
 region = us-east-2
@@ -46,7 +58,8 @@ EOF
 mkdir -p /root/bin
 mv /var/tmp/update_route53_mapping.sh /root/bin
 chmod 755 /root/bin/update_route53_mapping.sh
-cat << 'EOF' > /etc/systemd/system/update_route53_mapping.service
+
+cat << EOF > /etc/systemd/system/update_route53_mapping.service
 [Unit]
 Description=Update Route53 Mapping
 After=network.target auditd.service
@@ -70,4 +83,5 @@ ExecStop=/bin/true
 WantedBy=multi-user.target
 EOF
 
-#systemctl enable update_route53_mapping
+systemctl enable update_route53_mapping
+

@@ -2,16 +2,17 @@
 
 mkdir -p /home/centos/utils
 
-cat << EOF > /home/centos/utils/vars.sh
+# We do this in two sections because we want the first part to expxand 
+#  the AWS variables
+cat << EOF > /home/centos/utils/utils.sh
 export verbose=false
 
 export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-export AWS_DEFAULT_REGION=$SA_DEMO_AWS_REGION
+export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
+EOF
 
-# Putting the EOF in single quotes prevents bash from doing the expansion
-# of strings like $cmd or $rc in the script code
-cat - > /home/centos/utils/functions.sh << 'EOF'
+cat - >> /home/centos/utils/utils.sh << 'EOF'
 RETRY_COUNT=5
 
 function debug_print() {

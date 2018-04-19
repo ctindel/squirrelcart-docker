@@ -35,6 +35,11 @@ variable env {
   description = "dev/prod"
 }
 
+variable r53_domain {
+  default = "sa.elastic.co"
+  description = "domain"
+}
+
 data "aws_ami" "ctindel-squirrel-ami" {
   most_recent = true
   filter {
@@ -101,6 +106,7 @@ resource "aws_launch_configuration" "ctindel-squirrel-lc" {
     associate_public_ip_address = true
     key_name = "ctindel_elastic"
     security_groups = [ "${aws_security_group.ctindel-squirrel-sg.id}" ]
+    user_data = "${data.template_cloudinit_config.ctindel-squirrel-user-data.rendered}"
 
     lifecycle {
         create_before_destroy = true
@@ -133,5 +139,31 @@ resource "aws_autoscaling_group" "ctindel-squirrel-asg" {
     key = "env"
     value = "${var.env}"
     propagate_at_launch = true
+  }
+}
+
+data "template_file" "ctindel-squirrel-user-data" {
+  template = "${file("${path.module}/user_data.yml")}"
+
+  vars {
+    aws_region = "${var.region}"
+    env = "${var.env}"
+    hostname = "${var.name}"
+    sa_dns_domain = "${var.env}.${var.r53_domain}"
+    update_route53_mapping_service = "${file("${path.module}/update_route53_mapping.service")}"
+    start_squirrel_sh = "${file("${path.module}/start_squirrel.sh")}"
+    squirrel_docker_compose = "${file("${path.module}/../docker-compose.yml")}"
+  }
+}
+
+# Render a multi-part cloudinit config making use of the part
+# above, and other source files
+data "template_cloudinit_config" "ctindel-squirrel-user-data" {
+  gzip          = true
+  base64_encode = false
+
+  part {
+    content_type = "text/cloud-config"
+    content      = "${data.template_file.ctindel-squirrel-user-data.rendered}"
   }
 }
