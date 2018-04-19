@@ -18,8 +18,8 @@ echo "Begin update_route53_mapping.sh"
 HOSTED_ZONE_ID="Z1NX9AB6R0TE36"
 SA_DOMAIN="sa.elastic.co"
 TTL=30
-INSTANCE_ID=$(docker run peopleperhour/ec2-metadata --instance-id | grep 'instance-id:' | sed -e $'s/[^[:print:]\t]//g' | cut -d ' ' -f 2)
-PUBLIC_HOSTNAME=$(docker run peopleperhour/ec2-metadata --public-hostname | grep 'public-hostname:' | sed -e $'s/[^[:print:]\t]//g' | cut -d ' ' -f 2)
+INSTANCE_ID=$(docker run --rm peopleperhour/ec2-metadata --instance-id | grep 'instance-id:' | sed -e $'s/[^[:print:]\t]//g' | cut -d ' ' -f 2)
+PUBLIC_HOSTNAME=$(docker run --rm peopleperhour/ec2-metadata --public-hostname | grep 'public-hostname:' | sed -e $'s/[^[:print:]\t]//g' | cut -d ' ' -f 2)
 REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | sed -e $'s/[^[:print:]\t]//g' |grep region|awk -F\" '{print $4}')
 
 # Sometimes instance metadata doesn't quite exist yet so we'll wait for the
