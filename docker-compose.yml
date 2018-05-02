@@ -2,19 +2,22 @@ version: '2.1'
 services:
 
   mysql:
-    image: mysql
+    build:
+      context: docker_mysql
+    image: ctindel/squirrelcart-mysql:prod
     container_name: mysql
     restart: always
     environment:
-      MYSQL_DATABASE: "test"
-      MYSQL_USER: "test"
-      MYSQL_PASSWORD: "test"
+      MYSQL_DATABASE: "squirrelcart"
+      MYSQL_USER: "squirrel"
+      MYSQL_PASSWORD: "squirrel"
       MYSQL_ROOT_PASSWORD: "root"
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     networks:
       app-net:
         aliases:
           - db
+          - mysql
     ports:
       - 3306:3306
 
@@ -26,6 +29,22 @@ services:
       app-net:
     ports:
       - 8080:8080
+
+  squirrel:
+    build:
+      context: docker_squirrelcart
+    image: ctindel/squirrelcart:prod
+    container_name: squirrel
+    environment:
+      - APACHE_SERVER_NAME=ctindel-build.prod.sa.elastic.co
+    restart: always
+    networks:
+      app-net:
+        aliases:
+          - squirrel
+          - app
+    ports:
+      - 80:80
 
 networks:
   app-net:

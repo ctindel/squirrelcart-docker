@@ -53,35 +53,35 @@ EOF
 # at boot time the ec2 tags aren't yet available, so we'll load it in a 
 # service that retries indefinitely on failure and eventually it will work.
 # 
-# Thesingle quotes around EOF so it won't try to expand the $MAINPID when 
+# The single quotes around EOF so it won't try to expand the $MAINPID when 
 # it runs
 mkdir -p /root/bin
 mv /var/tmp/update_route53_mapping.sh /root/bin
 chmod 755 /root/bin/update_route53_mapping.sh
 
-cat << EOF > /etc/systemd/system/update_route53_mapping.service
-[Unit]
-Description=Update Route53 Mapping
-After=network.target auditd.service
-
-[Service]
-StartLimitInterval=0
-RestartSec=5
-StandardOutput=journal
-StandardError=journal
-ExecReload=/usr/bin/kill -HUP $MAINPID
-KillSignal=SIGQUIT
-KillMode=mixed
-RemainAfterExit=yes
-Restart=on-failure
-User=root
-ExecStartPre=/bin/echo "Running update_route53_mapping.sh"
-ExecStart=/root/bin/update_route53_mapping.sh
-ExecStop=/bin/true
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-systemctl enable update_route53_mapping
+#cat << 'EOF' > /etc/systemd/system/update_route53_mapping.service
+#[Unit]
+#Description=Update Route53 Mapping
+#After=network.target auditd.service
+#
+#[Service]
+#StartLimitInterval=0
+#RestartSec=5
+#StandardOutput=journal
+#StandardError=journal
+#ExecReload=/usr/bin/kill -HUP $MAINPID
+#KillSignal=SIGQUIT
+#KillMode=mixed
+#RemainAfterExit=yes
+#Restart=on-failure
+#User=root
+#ExecStartPre=/bin/echo "Running update_route53_mapping.sh"
+#ExecStart=/root/bin/update_route53_mapping.sh
+#ExecStop=/bin/true
+#
+#[Install]
+#WantedBy=multi-user.target
+#EOF
+#
+#systemctl enable update_route53_mapping
 

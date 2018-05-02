@@ -1,5 +1,5 @@
 #!/bin/bash
-source /home/centos/utils/vars.sh
+source /home/centos/utils/utils.sh
 
 tmp_dir=/tmp/squirrel
 mkdir -p $tmp_dir

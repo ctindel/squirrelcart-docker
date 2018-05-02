@@ -1,6 +1,6 @@
 [Unit]
 Description=Update Route53 Mapping
-After=network.target auditd.service
+After=network.target auditd.service docker.service
 
 [Service]
 StartLimitInterval=0
@@ -13,6 +13,7 @@ KillMode=mixed
 RemainAfterExit=yes
 Restart=on-failure
 User=root
+ExecStartPre=/bin/echo "/bin/docker ps"
 ExecStartPre=/bin/echo "Running update_route53_mapping.sh"
 ExecStart=/root/bin/update_route53_mapping.sh
 ExecStop=/bin/true

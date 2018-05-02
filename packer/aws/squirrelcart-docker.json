@@ -49,6 +49,7 @@
         "scripts/common/setup_utils.sh",
         "scripts/atomic/install_utils.sh",
         "scripts/atomic/install_aws.sh",
+        "scripts/atomic/setup_docker.sh",
         "scripts/common/fix_centos_user_ownership.sh"
       ]
     }
