@@ -165,7 +165,7 @@ RUN mkdir /php && \
         --with-pic \
         --enable-pcntl \
     && \
-    make && \
+    make -j 16 && \
     make install && \
     
     # Build cli
@@ -268,7 +268,7 @@ RUN mkdir /php && \
         --enable-pcntl \
     && \
     make clean && \
-    make && \
+    make -j 16 && \
     make install && \
 
     # Add extensions
@@ -325,6 +325,7 @@ RUN apt-get update && \
     apt-get clean && \
     rm -r /var/lib/apt/lists/*
 
+RUN sed -i "s/80/8080/g" /etc/apache2/ports.conf
 EXPOSE 80
 
 CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
