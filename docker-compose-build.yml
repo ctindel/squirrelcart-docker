@@ -1,11 +1,11 @@
 version: '2.1'
 services:
 
-  sc-mysql:
+  sc-mysql-build:
     build:
       context: docker_mysql
-    image: ctindel/sc-mysql:${SC_ENV}
-    container_name: sc-mysql
+    image: ctindel/sc-mysql-build:${SC_ENV}
+    container_name: sc-mysql-build
     restart: always
     environment:
       MYSQL_DATABASE: "squirrelcart"
@@ -14,42 +14,31 @@ services:
       MYSQL_ROOT_PASSWORD: "root"
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     networks:
-      sc-net:
+      sc-build-net:
         aliases:
           - db
           - mysql
     ports:
       - 3306:3306
 
-  sc-app:
+  sc-app-build:
     depends_on:
-      - sc-mysql
+      - sc-mysql-build
     build:
       context: docker_squirrelcart
-    image: ctindel/sc-app:${SC_ENV}
-    container_name: sc-app
+    image: ctindel/sc-app-build:${SC_ENV}
+    container_name: sc-app-build
     environment:
-      - APACHE_SERVER_NAME=ctindel.prod.sa.elastic.co
+      - APACHE_SERVER_NAME=ctindel-build.prod.sa.elastic.co
     restart: always
     networks:
-      sc-net:
+      sc-build-net:
         aliases:
           - squirrelcart
           - app
     ports:
       - 8000:8000
 
-  adminer:
-    image: adminer
-    depends_on:
-      - sc-mysql
-    container_name: adminer
-    restart: always
-    networks:
-      sc-net:
-    ports:
-      - 8080:8080
-
 networks:
-  sc-net:
+  sc-build-net:
     driver: bridge

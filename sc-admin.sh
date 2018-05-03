@@ -1,8 +1,12 @@
 #!/bin/bash
 
 export SC_AWS_REGION="us-east-2"
+export SC_AWS_S3_BUCKET="ctindel-squirrel"
+export SC_AWS_SES_SMTP_ENDPOINT="email-smtp.us-east-1.amazonaws.com"
 export TMP_DIR="/tmp/sc"
 export SC_DOCKER_REGISTRY="ctindel"
+SC_VER="squirrelcart-pro-v3.0.1"
+SC_TARBALL="$SC_VER.tar.gz"
 
 SC_DOCKER_BUILD_CONTAINERS=(
 "sc-mysql-build"
@@ -140,7 +144,9 @@ function arrayContainsElement () {
 }
 
 docker_cleanup() {
-    docker system prune
+    check_run_cmd "docker-compose -f docker-compose-build.yml down"
+    check_run_cmd "docker-compose -f docker-compose-build.yml rm -f"
+    check_run_cmd "docker system prune -f"
     # https://stackoverflow.com/questions/32723111/how-to-remove-old-and-unused-docker-images
     # https://gist.github.com/bastman/5b57ddb3c11942094f8d0a97d461b430
     #docker rm -v $(docker ps --filter status=exited -q 2>/dev/null) 2>/dev/null
@@ -183,13 +189,121 @@ function build() {
 
     docker_cleanup
 
-    trap "docker-compose -f docker-compose-build.yml rm -v --force" SIGINT SIGTERM
     check_run_cmd "docker-compose -f docker-compose-build.yml build --force-rm --pull --no-cache sc-mysql-build"
     check_run_cmd "docker-compose -f docker-compose-build.yml build --force-rm --pull --no-cache sc-app-build"
-    check_run_cmd "docker-compose -f docker-compose-build.yml up -d --remove-orphans sc-app-build"
+    check_run_cmd "docker-compose -f docker-compose-build.yml up -d sc-app-build"
+    check_run_cmd "aws s3 cp s3://$SC_AWS_S3_BUCKET/$SC_TARBALL $TMP_DIR"
+    check_run_cmd "docker cp $TMP_DIR/$SC_TARBALL sc-app-build:$TMP_DIR"
+    check_run_cmd "docker exec sc-app-build bash /tmp/sc/src/install.sh"
     check_run_cmd "docker commit sc-mysql-build $SC_DOCKER_REGISTRY/sc-mysql:$SC_ENV"
     check_run_cmd "docker commit sc-app-build $SC_DOCKER_REGISTRY/sc-app:$SC_ENV"
     check_run_cmd "docker-compose -f docker-compose-build.yml down"
 
     debug_print "END build"
 }
+
+function push() {
+    debug_print "BEGIN push"
+
+    for image in "${SC_DOCKER_IMAGES[@]}"; do
+        # Strip out the registry name
+        image_name=$(echo $image | sed -e 's@.*/@@')
+        echo "image_name = $image_name"
+        # sc-app:dev
+        tar_name=$(echo $image_name | tr ':' '-')
+        tar_name+=".tar"
+        # File name will have the environment name in it already
+        # sc-app-dev.tar
+        echo "tar_name = $tar_name"
+        check_run_cmd "docker save $image -o $TMP_DIR/docker/$tar_name"
+        check_run_cmd "aws s3 cp --region $SC_AWS_REGION $TMP_DIR/$tar_name s3://$SC_AWS_S3_BUCKET/docker/"
+    done
+
+    debug_print "END push"
+}
+
+function local_deploy() {
+    debug_print "BEGIN local_deploy"
+
+    local needs_download=false
+
+    for image in "${SC_DOCKER_IMAGES[@]}"; do
+        if [[ "$(docker images -q $image 2> /dev/null)" == "" ]]; then
+            echo "Image $image is not present locally, will re-download images"
+            needs_download=true
+        fi
+    done
+
+    if [[ "$needs_download" == "true" ]]; then
+        echo "Downloading docker images"
+
+        check_run_cmd "mkdir -p $TMP_DIR"
+
+        check_run_cmd "aws s3 cp --region $SC_AWS_REGION \"s3://$SC_AWS_S3_BUCKET/docker/sc-mysql-$SC_ENV.tar\" $tmp_dir"
+        check_run_cmd "aws s3 cp --region $SC_AWS_REGION \"s3://$SC_AWS_S3_BUCKET/docker/sc-app-$SC_ENV.tar\" $tmp_dir"
+
+        check_run_cmd "docker load -i $TMP_DIR/sc-mysql-$SC_ENV.tar"
+        check_run_cmd "docker load -i $TMP_DIR/sc-app-$SC_ENV.tar"
+    fi
+
+    check_run_cmd "docker-compose -f docker-compose-local.yml up -d"
+
+    echo "When app is ready connect to http://localhost:8000"
+
+    debug_print "END local_deploy"
+}
+
+function execute_admin_cmd() {
+    check_run_cmd "mkdir -p $TMP_DIR"
+
+    case $admin_cmd in
+        "build")
+            build
+            ;;
+        "push")
+            push
+            ;;
+        "local-deploy")
+            local_deploy
+            ;;
+    esac
+}
+
+if [ "$#" == "0" ]; then
+    echo "$USAGE"
+    exit 1
+fi
+
+if [[ "$1" == "-v" ]]; then
+    verbose=true
+    shift
+fi
+
+admin_cmd=$1
+shift
+
+if ! arrayContainsElement SC_ADMIN_CMDS "$admin_cmd"; then
+    err_exit_usage "Invalid admin command specific: $admin_cmd"
+fi
+
+while (( "$#" )); do
+    if [[ "$1" == "--env" ]]; then
+        export SC_ENV=$2
+        if [[ $SC_ENV != "dev" && $SC_ENV != "staging" && $SC_ENV != "prod" ]]; then
+            err_exit_usage "--env must be one of <dev | staging | prod>"
+        fi
+    fi
+
+    if [[ "$1" == "-v" ]]; then
+        verbose=true
+        shift
+        continue
+    fi
+
+    shift
+    shift
+done
+
+trap ctrl_c_handler INT
+validate_admin_required_external_environment
+execute_admin_cmd
