@@ -5,9 +5,10 @@ mkdir -p /home/centos/.aws
 docker pull peopleperhour/ec2-metadata
 docker pull mesosphere/aws-cli
 
-cat << EOF >> /home/centos/.bash_profile
-alias aws='docker run --rm -t $(tty &>/dev/null && echo "-i") -e "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" -e "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" -e "AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}" -v "$(pwd):/project" mesosphere/aws-cli'
+curl "https://bootstrap.pypa.io/get-pip.py" -o /tmp/get-pip.py && python /tmp/get-pip.py && rm -f /tmp/get-pip.py
+pip install awscli --upgrade
 
+cat << EOF >> /home/centos/.bash_profile
 export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
@@ -26,8 +27,6 @@ EOF
 
 mkdir -p /root/.aws
 cat << EOF >> /root/.bash_profile
-alias aws='docker run --rm -t $(tty &>/dev/null && echo "-i") -e "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" -e "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" -e "AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}" -v "$(pwd):/project" mesosphere/aws-cli'
-
 export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION

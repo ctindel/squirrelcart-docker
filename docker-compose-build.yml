@@ -1,6 +1,23 @@
 version: '2.1'
 services:
 
+  sc-smtp-build:
+    build:
+      context: docker_smtp
+    image: ctindel/sc-smtp-build:${SC_ENV}
+    container_name: sc-smtp-build
+    restart: always
+    environment:
+      AWS_REGION: "us-east-1"
+      SMTP_USERNAME: ${SC_SMTP_USERNAME}
+      SMTP_PASSWORD: ${SC_SMTP_PASSWORD}
+    networks:
+      sc-build-net:
+        aliases:
+          - smtp
+    ports:
+      - 25:25
+
   sc-mysql-build:
     build:
       context: docker_mysql
@@ -23,6 +40,7 @@ services:
 
   sc-app-build:
     depends_on:
+      - sc-smtp-build
       - sc-mysql-build
     build:
       context: docker_squirrelcart

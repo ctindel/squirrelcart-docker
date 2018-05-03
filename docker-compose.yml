@@ -1,9 +1,22 @@
 version: '2.1'
 services:
 
+  sc-smtp:
+    image: ctindel/sc-smtp:${SC_ENV}
+    container_name: sc-smtp
+    restart: always
+    environment:
+      AWS_REGION: "us-east-1"
+      SMTP_USERNAME: ${SC_SMTP_USERNAME}
+      SMTP_PASSWORD: ${SC_SMTP_PASSWORD}
+    networks:
+      sc-net:
+        aliases:
+          - smtp
+    ports:
+      - 25:25
+
   sc-mysql:
-    build:
-      context: docker_mysql
     image: ctindel/sc-mysql:${SC_ENV}
     container_name: sc-mysql
     restart: always
@@ -23,9 +36,8 @@ services:
 
   sc-app:
     depends_on:
+      - sc-smtp
       - sc-mysql
-    build:
-      context: docker_squirrelcart
     image: ctindel/sc-app:${SC_ENV}
     container_name: sc-app
     environment:
@@ -49,6 +61,7 @@ services:
       sc-net:
     ports:
       - 8080:8080
+      - 8443:8443
 
 networks:
   sc-net:

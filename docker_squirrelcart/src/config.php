@@ -28,7 +28,7 @@
 // http://www.example.com/store.php
 // /home/www/myacct 
 //
-$site_www_root = 'http://localhost:8000';
+$site_www_root = 'http://localhost:8080';
 
 //
 // This is the web address (URL) to the root of your store using SSL (https://).
@@ -44,7 +44,8 @@ $site_www_root = 'http://localhost:8000';
 // https://www.example.com/store.php
 // /home/www/myacct
 //
-#$site_secure_root = 'https://localhost:8000';
+#$site_secure_root = 'http://localhost:8443';
+$site_secure_root = '';
 	
 //
 // This is the filename of your main storefront page. It defaults to /store.php when first installed. 
@@ -111,7 +112,7 @@ $db = 'squirrelcart';
 // smtp.example.com Incorrect Examples:
 // http://www.example.com 
 //
-$smtp_host = 'email-smtp.us-east-1.amazonaws.com';
+$smtp_host = 'smtp';
 
 //
 // This tells Squirrelcart where your sc_data folder is located. The path should be relative to what you specified for $site_isp_root.

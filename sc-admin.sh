@@ -9,14 +9,17 @@ SC_VER="squirrelcart-pro-v3.0.1"
 SC_TARBALL="$SC_VER.tar.gz"
 
 SC_DOCKER_BUILD_CONTAINERS=(
+"sc-smtp-build"
 "sc-mysql-build"
 "sc-app-build"
 )
 SC_DOCKER_BUILD_IMAGES=(
+"sc-smtp-build:$SC_ENV"
 "sc-mysql-build:$SC_ENV"
 "sc-app-build:$SC_ENV"
 )
 SC_DOCKER_IMAGES=(
+"$SC_DOCKER_REGISTRY/sc-smtp:$SC_ENV"
 "$SC_DOCKER_REGISTRY/sc-mysql:$SC_ENV"
 "$SC_DOCKER_REGISTRY/sc-app:$SC_ENV"
 )
@@ -189,12 +192,16 @@ function build() {
 
     docker_cleanup
 
+    check_run_cmd "docker-compose -f docker-compose-build.yml build --force-rm --pull --no-cache sc-smtp-build"
     check_run_cmd "docker-compose -f docker-compose-build.yml build --force-rm --pull --no-cache sc-mysql-build"
     check_run_cmd "docker-compose -f docker-compose-build.yml build --force-rm --pull --no-cache sc-app-build"
     check_run_cmd "docker-compose -f docker-compose-build.yml up -d sc-app-build"
     check_run_cmd "aws s3 cp s3://$SC_AWS_S3_BUCKET/$SC_TARBALL $TMP_DIR"
+    check_run_cmd "aws s3 cp s3://$SC_AWS_S3_BUCKET/sc-initial-install.sql.gz $TMP_DIR"
     check_run_cmd "docker cp $TMP_DIR/$SC_TARBALL sc-app-build:$TMP_DIR"
+    check_run_cmd "docker cp $TMP_DIR/sc-initial-install.sql.gz sc-app-build:$TMP_DIR"
     check_run_cmd "docker exec sc-app-build bash /tmp/sc/src/install.sh"
+    check_run_cmd "docker commit sc-smtp-build $SC_DOCKER_REGISTRY/sc-smtp:$SC_ENV"
     check_run_cmd "docker commit sc-mysql-build $SC_DOCKER_REGISTRY/sc-mysql:$SC_ENV"
     check_run_cmd "docker commit sc-app-build $SC_DOCKER_REGISTRY/sc-app:$SC_ENV"
     check_run_cmd "docker-compose -f docker-compose-build.yml down"

@@ -13,12 +13,17 @@ mv $TMP_DIR/$SC_VER/* $SERVER_ROOT
 find $SERVER_ROOT/sc_images -type d | xargs chmod 777
 chmod 777 $SERVER_ROOT/squirrelcart/sc_data
 chmod 777 $SERVER_ROOT/squirrelcart/config.php
+
 cp $TMP_DIR/src/config.php /project/squirrelcart
 rm -rf /project/sc_install
 chown -R www-data:www-data $SERVER_ROOT/*
 
-echo "Press [CTRL+C] to stop.."
-while true
-do
-    sleep 1
-done
+gunzip -c $TMP_DIR/sc-initial-install.sql.gz > $TMP_DIR/sc-initial-install.sql
+mysql -h mysql -u squirrelcart -psquirrelcart squirrelcart < $TMP_DIR/sc-initial-install.sql
+
+#echo "Press [CTRL+C] to stop.."
+#while true
+#do
+#    sleep 1
+#done
+

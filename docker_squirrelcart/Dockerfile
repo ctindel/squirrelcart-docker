@@ -4,7 +4,7 @@ FROM ubuntu:12.04
 # Install apache
 RUN apt-get update && \
     RUNLEVEL=1 apt-get install -y --no-install-recommends \
-        vim curl apache2 mysql-client-5.5 apache2-mpm-prefork apache2-utils apache2.2-bin apache2.2-common \
+        vim curl apache2 net-tools iputils-ping mysql-client-5.5 apache2-mpm-prefork apache2-utils apache2.2-bin apache2.2-common \
         libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap \
         libasn1-8-heimdal libcap2 libclass-isa-perl libexpat1 libgcrypt11 libgdbm3 \
         libgnutls26 libgpg-error0 libgssapi3-heimdal libhcrypto4-heimdal \
@@ -326,6 +326,5 @@ RUN apt-get update && \
     rm -r /var/lib/apt/lists/*
 
 RUN sed -i "s/80/8080/g" /etc/apache2/ports.conf
-EXPOSE 80
 
 CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
