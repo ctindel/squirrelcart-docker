@@ -25,13 +25,8 @@
   "provisioners": [
     {
       "type": "file",
-      "source": "/home/elastic/.ssh/ctindel_elastic.pub",
+      "source": "/home/elastic/.ssh/hh-20180510.id_rsa.pub",
       "destination": "/var/tmp/centos.pub"
-    },
-    {
-      "type": "file",
-      "source": "/home/elastic/.ssh/ctindel_elastic",
-      "destination": "/var/tmp/centos.key"
     },
     {
       "type": "file",

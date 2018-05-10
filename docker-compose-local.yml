@@ -50,6 +50,7 @@ services:
           - app
     ports:
       - 8080:8080
+      - 8443:8443
 
   adminer:
     image: adminer
@@ -60,8 +61,7 @@ services:
     networks:
       sc-net:
     ports:
-      - 8080:8080
-      - 8443:8443
+      - 8000:8000
 
 networks:
   sc-net:

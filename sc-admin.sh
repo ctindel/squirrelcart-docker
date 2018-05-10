@@ -222,7 +222,7 @@ function push() {
         # File name will have the environment name in it already
         # sc-app-dev.tar
         echo "tar_name = $tar_name"
-        check_run_cmd "docker save $image -o $TMP_DIR/docker/$tar_name"
+        check_run_cmd "docker save $image -o $TMP_DIR/$tar_name"
         check_run_cmd "aws s3 cp --region $SC_AWS_REGION $TMP_DIR/$tar_name s3://$SC_AWS_S3_BUCKET/docker/"
     done
 
@@ -246,8 +246,8 @@ function local_deploy() {
 
         check_run_cmd "mkdir -p $TMP_DIR"
 
-        check_run_cmd "aws s3 cp --region $SC_AWS_REGION \"s3://$SC_AWS_S3_BUCKET/docker/sc-mysql-$SC_ENV.tar\" $tmp_dir"
-        check_run_cmd "aws s3 cp --region $SC_AWS_REGION \"s3://$SC_AWS_S3_BUCKET/docker/sc-app-$SC_ENV.tar\" $tmp_dir"
+        check_run_cmd "aws s3 cp --region $SC_AWS_REGION \"s3://$SC_AWS_S3_BUCKET/docker/sc-mysql-$SC_ENV.tar\" $TMP_DIR"
+        check_run_cmd "aws s3 cp --region $SC_AWS_REGION \"s3://$SC_AWS_S3_BUCKET/docker/sc-app-$SC_ENV.tar\" $TMP_DIR"
 
         check_run_cmd "docker load -i $TMP_DIR/sc-mysql-$SC_ENV.tar"
         check_run_cmd "docker load -i $TMP_DIR/sc-app-$SC_ENV.tar"
@@ -255,7 +255,7 @@ function local_deploy() {
 
     check_run_cmd "docker-compose -f docker-compose-local.yml up -d"
 
-    echo "When app is ready connect to http://localhost:8000"
+    echo "When app is ready connect to http://localhost:8080"
 
     debug_print "END local_deploy"
 }
