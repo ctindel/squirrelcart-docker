@@ -62,7 +62,8 @@ chmod 755 /root/bin/update_route53_mapping.sh
 cat << 'EOF' > /etc/systemd/system/update_route53_mapping.service
 [Unit]
 Description=Update Route53 Mapping
-After=network.target auditd.service
+After=network.target auditd.service docker.service
+Requires=docker.service
 
 [Service]
 StartLimitInterval=0
