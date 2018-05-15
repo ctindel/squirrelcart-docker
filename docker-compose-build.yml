@@ -30,6 +30,8 @@ services:
       MYSQL_PASSWORD: "squirrelcart"
       MYSQL_ROOT_PASSWORD: "root"
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    volumes:
+      - /tmp/sc/mysql_build_data:/var/lib/mysql
     networks:
       sc-build-net:
         aliases:

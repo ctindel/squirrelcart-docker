@@ -127,7 +127,7 @@ $smtp_host = 'smtp';
 // squirrelcart/sc_data/
 // http://www.example.com/squirrelcart/sc_data
 //
-$sc_data_path = 'squirrelcart/sc_data';
+$sc_data_path = 'sc_data';
 	
 //
 // The $curl_opts and $curl_ssl_opts variables can be used to add extra CURL options when requesting pages using CURL. 

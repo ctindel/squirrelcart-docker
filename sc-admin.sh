@@ -192,19 +192,23 @@ function build() {
 
     docker_cleanup
 
+    latest_backup=$(aws s3 ls s3://$SC_AWS_S3_BUCKET/backup/ | grep PRE | awk '{print $2}' | sort | sed -e 's#/##g')
+
+    check_run_cmd "sudo rm -rf $TMP_DIR/mysql_build_data && mkdir -p $TMP_DIR/mysql_build_data"
     check_run_cmd "docker-compose -f docker-compose-build.yml build --force-rm --pull --no-cache sc-smtp-build"
     check_run_cmd "docker-compose -f docker-compose-build.yml build --force-rm --pull --no-cache sc-mysql-build"
-    check_run_cmd "docker-compose -f docker-compose-build.yml build --force-rm --pull --no-cache sc-app-build"
+    #check_run_cmd "docker-compose -f docker-compose-build.yml build --force-rm --pull --no-cache sc-app-build"
     check_run_cmd "docker-compose -f docker-compose-build.yml up -d sc-app-build"
-    check_run_cmd "aws s3 cp s3://$SC_AWS_S3_BUCKET/$SC_TARBALL $TMP_DIR"
-    check_run_cmd "aws s3 cp s3://$SC_AWS_S3_BUCKET/sc-initial-install.sql.gz $TMP_DIR"
-    check_run_cmd "docker cp $TMP_DIR/$SC_TARBALL sc-app-build:$TMP_DIR"
-    check_run_cmd "docker cp $TMP_DIR/sc-initial-install.sql.gz sc-app-build:$TMP_DIR"
-    check_run_cmd "docker exec sc-app-build bash /tmp/sc/src/install.sh"
+    check_run_cmd "aws s3 cp s3://$SC_AWS_S3_BUCKET/backup/$latest_backup/$latest_backup-squirrelcart-hh.tar.gz $TMP_DIR/squirrelcart-hh.tar.gz"
+    check_run_cmd "aws s3 cp s3://$SC_AWS_S3_BUCKET/backup/$latest_backup/$latest_backup-squirrelcart-hh.sql.gz $TMP_DIR/squirrelcart-hh.sql.gz"
+    check_run_cmd "docker cp $TMP_DIR/squirrelcart-hh.sql.gz sc-app-build:$TMP_DIR"
+    check_run_cmd "docker cp $TMP_DIR/squirrelcart-hh.tar.gz sc-app-build:$TMP_DIR"
+    check_run_cmd "docker exec sc-app-build bash $TMP_DIR/src/install.sh"
     check_run_cmd "docker commit sc-smtp-build $SC_DOCKER_REGISTRY/sc-smtp:$SC_ENV"
     check_run_cmd "docker commit sc-mysql-build $SC_DOCKER_REGISTRY/sc-mysql:$SC_ENV"
     check_run_cmd "docker commit sc-app-build $SC_DOCKER_REGISTRY/sc-app:$SC_ENV"
     check_run_cmd "docker-compose -f docker-compose-build.yml down"
+    check_run_cmd "sudo rm -rf $TMP_DIR/mysql_build_data"
 
     debug_print "END build"
 }
@@ -245,17 +249,27 @@ function local_deploy() {
         echo "Downloading docker images"
 
         check_run_cmd "mkdir -p $TMP_DIR"
+        check_run_cmd "sudo rm -rf $TMP_DIR/mysql_data && mkdir -p $TMP_DIR/mysql_data"
 
         check_run_cmd "aws s3 cp --region $SC_AWS_REGION \"s3://$SC_AWS_S3_BUCKET/docker/sc-mysql-$SC_ENV.tar\" $TMP_DIR"
         check_run_cmd "aws s3 cp --region $SC_AWS_REGION \"s3://$SC_AWS_S3_BUCKET/docker/sc-app-$SC_ENV.tar\" $TMP_DIR"
+        check_run_cmd "aws s3 cp --region $SC_AWS_REGION \"s3://$SC_AWS_S3_BUCKET/docker/sc-smtp-$SC_ENV.tar\" $TMP_DIR"
 
         check_run_cmd "docker load -i $TMP_DIR/sc-mysql-$SC_ENV.tar"
         check_run_cmd "docker load -i $TMP_DIR/sc-app-$SC_ENV.tar"
+        check_run_cmd "docker load -i $TMP_DIR/sc-smtp-$SC_ENV.tar"
     fi
 
     check_run_cmd "docker-compose -f docker-compose-local.yml up -d"
 
-    echo "When app is ready connect to http://localhost:8080"
+    latest_backup=$(aws s3 ls s3://$SC_AWS_S3_BUCKET/backup/ | grep PRE | awk '{print $2}' | sort | sed -e 's#/##g')
+    check_run_cmd "aws s3 cp s3://$SC_AWS_S3_BUCKET/backup/$latest_backup/$latest_backup-squirrelcart-hh.tar.gz $TMP_DIR/squirrelcart-hh.tar.gz"
+    check_run_cmd "aws s3 cp s3://$SC_AWS_S3_BUCKET/backup/$latest_backup/$latest_backup-squirrelcart-hh.sql.gz $TMP_DIR/squirrelcart-hh.sql.gz"
+    check_run_cmd "docker cp $TMP_DIR/squirrelcart-hh.sql.gz sc-app:$TMP_DIR"
+    check_run_cmd "docker cp $TMP_DIR/squirrelcart-hh.tar.gz sc-app:$TMP_DIR"
+    check_run_cmd "docker exec sc-app bash $TMP_DIR/src/install.sh"
+
+    echo "When app is ready connect to http://localhost:8080 or for phpmyadmin http://localhost:8000"
 
     debug_print "END local_deploy"
 }

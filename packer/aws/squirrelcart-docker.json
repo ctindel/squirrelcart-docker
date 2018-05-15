@@ -13,8 +13,8 @@
     "source_ami": "ami-1690b173",
     "instance_type": "m4.2xlarge",
     "ssh_username": "centos",
-    "ssh_keypair_name": "ctindel_elastic",
-    "ssh_private_key_file": "/home/elastic/.ssh/ctindel_elastic",
+    "ssh_keypair_name": "ctindel-hh-20180510",
+    "ssh_private_key_file": "/home/centos/.ssh/hh-20180510.id_rsa",
     "ami_name": "ctindel-squirrel-{{user `sc_env`}}",
     "ami_description": "Chad ctindel Tindel Squirrelcart Docker Host {{user `sc_env`}}",
     "force_deregister": "true",
@@ -25,13 +25,8 @@
   "provisioners": [
     {
       "type": "file",
-      "source": "/home/elastic/.ssh/ctindel_elastic.pub",
+      "source": "/home/centos/.ssh/hh-20180510.id_rsa.pub",
       "destination": "/var/tmp/centos.pub"
-    },
-    {
-      "type": "file",
-      "source": "/home/elastic/.ssh/ctindel_elastic",
-      "destination": "/var/tmp/centos.key"
     },
     {
       "type": "file",
@@ -48,7 +43,6 @@
       ],
       "scripts": [
         "scripts/common/setup_utils.sh",
-        "scripts/common/install_build_tools.sh",
         "scripts/atomic/install_utils.sh",
         "scripts/atomic/install_aws.sh",
         "scripts/atomic/setup_docker.sh",

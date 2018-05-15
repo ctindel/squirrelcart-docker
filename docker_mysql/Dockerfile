@@ -38,9 +38,6 @@ ENV PATH $PATH:/usr/local/mysql/bin:/usr/local/mysql/scripts
 
 WORKDIR /usr/local/mysql
 
-VOLUME /var/lib/mysql
-
-
 ENTRYPOINT ["/entrypoint.sh"]
 
 EXPOSE 3306

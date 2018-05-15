@@ -26,6 +26,8 @@ services:
       MYSQL_PASSWORD: "squirrelcart"
       MYSQL_ROOT_PASSWORD: "root"
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    volumes:
+      - /tmp/sc/mysql_data:/var/lib/mysql
     networks:
       sc-net:
         aliases:
@@ -52,14 +54,21 @@ services:
       - 8080:8080
       - 8443:8443
 
-  adminer:
-    image: adminer
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:4.7
     depends_on:
       - sc-mysql
-    container_name: adminer
+    container_name: sc-phpmyadmin
+    environment:
+      PMA_ARBITRARY: 1
+      PMA_HOST: "mysql"
+      PMA_USER: "root"
+      PMA_PASSWORD: "root"
     restart: always
     networks:
       sc-net:
+        aliases:
+          - admin
     ports:
       - 8000:8000
 
