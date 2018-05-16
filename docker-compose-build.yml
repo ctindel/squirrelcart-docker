@@ -6,7 +6,7 @@ services:
       context: docker_smtp
     image: ctindel/sc-smtp-build:${SC_ENV}
     container_name: sc-smtp-build
-    restart: always
+    restart: on-failure
     environment:
       AWS_REGION: "us-east-1"
       SMTP_USERNAME: ${SC_SMTP_USERNAME}
@@ -23,7 +23,7 @@ services:
       context: docker_mysql
     image: ctindel/sc-mysql-build:${SC_ENV}
     container_name: sc-mysql-build
-    restart: always
+    restart: on-failure
     environment:
       MYSQL_DATABASE: "squirrelcart"
       MYSQL_USER: "squirrelcart"
@@ -50,7 +50,7 @@ services:
     container_name: sc-app-build
     environment:
       - APACHE_SERVER_NAME=ctindel-build.prod.sa.elastic.co
-    restart: always
+    restart: on-failure
     networks:
       sc-build-net:
         aliases:
