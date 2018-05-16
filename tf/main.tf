@@ -44,7 +44,7 @@ data "aws_ami" "ctindel-squirrel-ami" {
   most_recent = true
   filter {
     name = "name"
-    values = ["ctindel-squirrel"]
+    values = ["ctindel-squirrel-${var.env}"]
   }
   owners = ["self"]
 }
@@ -104,7 +104,7 @@ resource "aws_launch_configuration" "ctindel-squirrel-lc" {
     image_id = "${data.aws_ami.ctindel-squirrel-ami.id}"
     instance_type = "${var.ec2_instance_type}"
     associate_public_ip_address = true
-    key_name = "ctindel_elastic"
+    key_name = "ctindel-hh-20180515"
     security_groups = [ "${aws_security_group.ctindel-squirrel-sg.id}" ]
     user_data = "${data.template_cloudinit_config.ctindel-squirrel-user-data.rendered}"
 
@@ -114,7 +114,7 @@ resource "aws_launch_configuration" "ctindel-squirrel-lc" {
 
     root_block_device {
         volume_type = "gp2"
-        volume_size = "30"
+        volume_size = "200"
     }
 }
 
@@ -127,7 +127,8 @@ resource "aws_autoscaling_group" "ctindel-squirrel-asg" {
   desired_capacity = 1
   force_delete = false
   launch_configuration = "${aws_launch_configuration.ctindel-squirrel-lc.name}"
-  vpc_zone_identifier = ["${aws_default_subnet.default_az1.id}", "${aws_default_subnet.default_az2.id}", "${aws_default_subnet.default_az3.id}"]
+  # We only run in 1 AZ because we have to create the mysql EBS volume in a specific AZ
+  vpc_zone_identifier = ["${aws_default_subnet.default_az1.id}"]
 
   tag {
     key = "Name"

@@ -3,7 +3,9 @@
     "aws_access_key_id": "{{env `AWS_ACCESS_KEY_ID`}}",
     "aws_secret_key": "{{env `AWS_SECRET_ACCESS_KEY`}}",
     "aws_default_region": "{{env `AWS_DEFAULT_REGION`}}",
-    "sc_env": "{{env `SC_ENV`}}"
+    "sc_env": "{{env `SC_ENV`}}",
+    "sc_aws_region": "{{env `SC_AWS_REGION`}}",
+    "sc_aws_s3_bucket": "{{env `SC_AWS_S3_BUCKET`}}"
   },
   "builders": [{
     "type": "amazon-ebs",
@@ -13,8 +15,8 @@
     "source_ami": "ami-e1496384",
     "instance_type": "m4.2xlarge",
     "ssh_username": "centos",
-    "ssh_keypair_name": "ctindel-hh-20180510",
-    "ssh_private_key_file": "/home/centos/.ssh/hh-20180510.id_rsa",
+    "ssh_keypair_name": "ctindel-hh-20180515",
+    "ssh_private_key_file": "/home/centos/.ssh/hh-20180515.id_rsa",
     "ami_name": "ctindel-squirrel-build-{{user `sc_env`}}",
     "ami_description": "Chad ctindel Tindel Squirrelcart Build Server {{user `sc_env`}}",
     "force_deregister": "true",
@@ -25,7 +27,7 @@
   "provisioners": [
     {
       "type": "file",
-      "source": "/home/centos/.ssh/hh-20180510.id_rsa.pub",
+      "source": "/home/centos/.ssh/hh-20180515.id_rsa.pub",
       "destination": "/var/tmp/centos.pub"
     },
     {
@@ -40,7 +42,9 @@
           "AWS_ACCESS_KEY_ID={{user `aws_access_key_id`}}",
           "AWS_SECRET_ACCESS_KEY={{user `aws_secret_key`}}",
           "AWS_DEFAULT_REGION={{user `aws_default_region`}}",
-          "SC_ENV={{user `sc_env`}}"
+          "SC_ENV={{user `sc_env`}}",
+          "SC_AWS_REGION={{user `sc_aws_region`}}",
+          "SC_AWS_S3_BUCKET={{user `sc_aws_s3_bucket`}}"
       ],
       "scripts": [
         "scripts/centos/install_utils.sh",

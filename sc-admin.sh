@@ -25,14 +25,16 @@ SC_DOCKER_IMAGES=(
 )
 
 USAGE="SC Admin Usage: $0 [-v]
-           build
-           push
+           build-ami
+           build-docker
+           push-docker
            local-deploy
            validate-environment"
 
 declare -a SC_ADMIN_CMDS=(
-    "build"
-    "push"
+    "build-ami"
+    "build-docker"
+    "push-docker"
     "local-deploy"
 )
 
@@ -187,8 +189,16 @@ function validate_admin_required_external_environment() {
     validate_aws_credentials
 }
 
-function build() {
-    debug_print "BEGIN build"
+function build_ami() {
+    debug_print "BEGIN build_ami"
+
+    check_run_cmd "cd packer/aws; packer build squirrelcart-docker.json; cd $SC_DIR"
+
+    debug_print "END build_docker"
+}
+
+function build_docker() {
+    debug_print "BEGIN build_docker"
 
     docker_cleanup
 
@@ -210,11 +220,11 @@ function build() {
     check_run_cmd "docker-compose -f docker-compose-build.yml down"
     check_run_cmd "sudo rm -rf $TMP_DIR/mysql_build_data"
 
-    debug_print "END build"
+    debug_print "END build_docker"
 }
 
-function push() {
-    debug_print "BEGIN push"
+function push_docker() {
+    debug_print "BEGIN push_docker"
 
     for image in "${SC_DOCKER_IMAGES[@]}"; do
         # Strip out the registry name
@@ -230,7 +240,7 @@ function push() {
         check_run_cmd "aws s3 cp --region $SC_AWS_REGION $TMP_DIR/$tar_name s3://$SC_AWS_S3_BUCKET/docker/"
     done
 
-    debug_print "END push"
+    debug_print "END push_docker"
 }
 
 function local_deploy() {
@@ -278,11 +288,14 @@ function execute_admin_cmd() {
     check_run_cmd "mkdir -p $TMP_DIR"
 
     case $admin_cmd in
-        "build")
-            build
+        "build-ami")
+            build_ami
             ;;
-        "push")
-            push
+        "build-docker")
+            build_docker
+            ;;
+        "push-docker")
+            push_docker
             ;;
         "local-deploy")
             local_deploy

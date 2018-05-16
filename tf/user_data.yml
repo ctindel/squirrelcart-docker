@@ -33,4 +33,4 @@ runcmd:
     # just let the ASG reboot this box every day
     #- echo "/sbin/halt" | /usr/bin/at midnight $$(date -d 'next Saturday' '+%Y-%m-%d')
     - systemctl enable --now update_route53_mapping
-    - /home/centos/squirrel/start_squirrel.sh
+    #- /home/centos/squirrel/start_squirrel.sh
