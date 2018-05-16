@@ -74,7 +74,10 @@ if [ ! -d "$MOUNT_POINT" ]; then
     check_run_cmd "install -d -m 700 $MOUNT_POINT"
 fi
 
-check_run_cmd "mount $MOUNT_POINT"
+if ! mountpoint -q $MOUNT_POINT
+then
+    check_run_cmd "mount $MOUNT_POINT"
+fi
 
 if [ ! -d "$MYSQL_DATA_DIR" ]; then
     check_run_cmd "mkdir -p $MYSQL_DATA_DIR"

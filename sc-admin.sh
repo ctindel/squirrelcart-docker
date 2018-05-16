@@ -207,7 +207,7 @@ function build_docker() {
     check_run_cmd "sudo rm -rf $TMP_DIR/mysql_build_data && mkdir -p $TMP_DIR/mysql_build_data"
     check_run_cmd "docker-compose -f docker-compose-build.yml build --force-rm --pull --no-cache sc-smtp-build"
     check_run_cmd "docker-compose -f docker-compose-build.yml build --force-rm --pull --no-cache sc-mysql-build"
-    #check_run_cmd "docker-compose -f docker-compose-build.yml build --force-rm --pull --no-cache sc-app-build"
+    check_run_cmd "docker-compose -f docker-compose-build.yml build --force-rm --pull --no-cache sc-app-build"
     check_run_cmd "docker-compose -f docker-compose-build.yml up -d sc-app-build"
     check_run_cmd "aws s3 cp s3://$SC_AWS_S3_BUCKET/backup/$latest_backup/$latest_backup-squirrelcart-hh.tar.gz $TMP_DIR/squirrelcart-hh.tar.gz"
     check_run_cmd "aws s3 cp s3://$SC_AWS_S3_BUCKET/backup/$latest_backup/$latest_backup-squirrelcart-hh.sql.gz $TMP_DIR/squirrelcart-hh.sql.gz"

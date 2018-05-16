@@ -31,3 +31,9 @@ mysqladmin -f -h mysql -usquirrelcart -psquirrelcart drop squirrelcart
 mysql -h mysql -u root -proot -e "create database squirrelcart; GRANT ALL PRIVILEGES ON squirrelcart.* TO squirrelcart IDENTIFIED BY 'squirrelcart'"
 mysql -h mysql -usquirrelcart -psquirrelcart squirrelcart < $TMP_DIR/squirrelcart-hh.sql
 rm -f $TMP_DIR/squirrelcart-hh.sql
+
+#echo "Press [CTRL+C] to stop.."
+#while true
+#do
+#    sleep 1
+#done

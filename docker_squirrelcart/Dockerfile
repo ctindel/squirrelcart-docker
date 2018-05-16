@@ -4,7 +4,8 @@ FROM ubuntu:12.04
 # Install apache
 RUN apt-get update && \
     RUNLEVEL=1 apt-get install -y --no-install-recommends \
-        vim curl apache2 net-tools iputils-ping mysql-client-5.5 apache2-mpm-prefork apache2-utils apache2.2-bin apache2.2-common \
+        vim curl apache2 net-tools netcat iputils-ping mysql-client-5.5 \
+        apache2-mpm-prefork apache2-utils apache2.2-bin apache2.2-common \
         libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap \
         libasn1-8-heimdal libcap2 libclass-isa-perl libexpat1 libgcrypt11 libgdbm3 \
         libgnutls26 libgpg-error0 libgssapi3-heimdal libhcrypto4-heimdal \
@@ -23,6 +24,7 @@ COPY 000-project.conf /etc/apache2/sites-enabled/
 COPY src /tmp/sc/src
 
 RUN chmod 755 /tmp/sc/src/install.sh
+RUN chmod 755 /tmp/sc/src/wait-for-mysql.sh
 
 # Download an build PHP 5.2.17
 # See https://askubuntu.com/questions/597462/how-to-install-php-5-2-x-on-ubuntu-14-04
