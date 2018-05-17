@@ -25,10 +25,13 @@ update_cert() {
 if [ ! -e "/mnt/data/letsencrypt/etc/live/ctindel-squirrel.prod.sa.elastic.co/privkey.pem" ]; then
     echo "Getting certificates..."
     get_cert
-    check_run_cmd "cp -f /home/centos/squirrel/nginx.https.conf /home/centos/squirrel/nginx/"
 else
     echo "Updating certificates..."
     update_cert
 fi
 
+# This will cover the case both where we just generated a cert, and also where we did
+#  clean launch but where the cert was already generated on the volume previously (as
+#  in when terminating the instance manually)
+check_run_cmd "cp -f /home/centos/squirrel/nginx.https.conf /home/centos/squirrel/nginx/"
 docker exec sc-nginx nginx -s reload
