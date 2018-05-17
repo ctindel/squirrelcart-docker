@@ -24,6 +24,7 @@ COPY 000-project.conf /etc/apache2/sites-enabled/
 COPY src /tmp/sc/src
 
 RUN chmod 755 /tmp/sc/src/install.sh
+RUN chmod 755 /tmp/sc/src/backup.sh
 RUN chmod 755 /tmp/sc/src/wait-for-mysql.sh
 
 # Download an build PHP 5.2.17

@@ -26,7 +26,7 @@ echo "table_exists is $table_exists"
 if [ "$table_exists" -eq "1" ]; then
     echo "Database is already loaded!"
 else
-    latest_backup=$(docker run --rm -t $(tty &>/dev/null && echo "-i") -e "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" -e "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" -e "AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}" -v "$(pwd):/project" mesosphere/aws-cli s3 ls s3://$SC_AWS_S3_BUCKET/backup/ | grep PRE | awk '{print $2}' | sort | sed -e 's#/##g')
+    latest_backup=$(docker run --rm -t $(tty &>/dev/null && echo "-i") -e "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" -e "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" -e "AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}" -v "$(pwd):/project" mesosphere/aws-cli s3 ls s3://$SC_AWS_S3_BUCKET/backup/ | grep PRE | awk '{print $2}' | sort -r | sed -e 's#/##g' | head -1)
     latest_backup=$(echo $latest_backup | perl -pe 's/[^\w.-]+//g')
     echo "Database is not loaded, will restore from latest backup $latest_backup"
     docker run --rm -t  -e "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" -e "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" -e "AWS_DEFAULT_REGION=$SC_AWS_REGION" -e "SC_AWS_S3_BUCKET=$SC_AWS_S3_BUCKET" -e "SC_ENV=$SC_ENV" -e "TMP_DIR=$TMP_DIR" -e "latest_backup=$latest_backup" -v "/tmp/sc:/tmp/sc" mesosphere/aws-cli s3 cp s3://$SC_AWS_S3_BUCKET/backup/$latest_backup/$latest_backup-squirrelcart-hh.tar.gz $TMP_DIR/squirrelcart-hh.tar.gz

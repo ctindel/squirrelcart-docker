@@ -202,7 +202,7 @@ function build_docker() {
 
     docker_cleanup
 
-    latest_backup=$(aws s3 ls s3://$SC_AWS_S3_BUCKET/backup/ | grep PRE | awk '{print $2}' | sort | sed -e 's#/##g')
+    latest_backup=$(aws s3 ls s3://$SC_AWS_S3_BUCKET/backup/ | grep PRE | awk '{print $2}' | sort -r | sed -e 's#/##g' | head -1)
 
     check_run_cmd "sudo rm -rf $TMP_DIR/mysql_build_data && mkdir -p $TMP_DIR/mysql_build_data"
     check_run_cmd "docker-compose -f docker-compose-build.yml build --force-rm --pull --no-cache sc-smtp-build"

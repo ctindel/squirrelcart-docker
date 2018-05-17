@@ -1,0 +1,9 @@
+[Unit]
+Description=Backup Squirrelcart every 30 mins
+
+[Timer]
+OnUnitActiveSec=30min
+OnBootSec=30min
+
+[Install]
+WantedBy=timers.target

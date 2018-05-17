@@ -1,0 +1,6 @@
+[Unit]
+Description=Backup Squirrelcart every 30 mins
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /home/centos/squirrel/backup_squirrel.sh

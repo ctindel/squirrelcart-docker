@@ -101,7 +101,7 @@ resource "aws_security_group" "ctindel-squirrel-sg" {
 
 resource "aws_ebs_volume" "example" {
     availability_zone = "us-east-2a"
-    size = 5
+    size = 1
     encrypted = true
     tags {
         Name = "ctindel-hh-mysql-${var.env}"
@@ -123,7 +123,7 @@ resource "aws_launch_configuration" "ctindel-squirrel-lc" {
 
     root_block_device {
         volume_type = "gp2"
-        volume_size = "50"
+        volume_size = "20"
     }
 }
 
@@ -162,7 +162,10 @@ data "template_file" "ctindel-squirrel-user-data" {
     sa_dns_domain = "${var.env}.${var.r53_domain}"
     update_route53_mapping_service = "${file("${path.module}/update_route53_mapping.service")}"
     squirrelcart_service = "${file("${path.module}/squirrelcart.service")}"
+    squirrelcart_backup_service = "${file("${path.module}/squirrelcart_backup.service")}"
+    squirrelcart_backup_timer = "${file("${path.module}/squirrelcart_backup.timer")}"
     start_squirrel_sh = "${file("${path.module}/start_squirrel.sh")}"
+    backup_squirrel_sh = "${file("${path.module}/backup_squirrel.sh")}"
     setup_storage_sh = "${file("${path.module}/setup_storage.sh")}"
     squirrel_docker_compose = "${file("${path.module}/../docker-compose.yml")}"
   }
