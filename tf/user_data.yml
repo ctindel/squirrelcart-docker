@@ -48,6 +48,26 @@ write_files:
       content: ${base64encode(backup_squirrel_sh)}
       owner: "centos:centos"
       permissions: "0755"
+    - path: /home/centos/squirrel/generate_cert.sh
+      encoding: base64
+      content: ${base64encode(generate_cert_sh)}
+      owner: "centos:centos"
+      permissions: "0755"
+    - path: /home/centos/squirrel/nginx.conf
+      encoding: base64
+      content: ${base64encode(nginx_conf)}
+      owner: "centos:centos"
+      permissions: "0755"
+    - path: /home/centos/squirrel/nginx.http.conf
+      encoding: base64
+      content: ${base64encode(nginx_http_conf)}
+      owner: "centos:centos"
+      permissions: "0755"
+    - path: /home/centos/squirrel/nginx.https.conf
+      encoding: base64
+      content: ${base64encode(nginx_https_conf)}
+      owner: "centos:centos"
+      permissions: "0755"
     - path: /home/centos/squirrel/docker-compose.yml
       encoding: base64
       content: ${base64encode(squirrel_docker_compose)}

@@ -80,23 +80,41 @@ resource "aws_default_subnet" "default_az3" {
 }
 
 resource "aws_security_group" "ctindel-squirrel-sg" {
-  name = "ctindel-squirrel-sg"
-  description = "Allow inbound SSH traffic and web traffic"
-  vpc_id = "${aws_default_vpc.default.id}"
-
-  ingress {
-    from_port = 0
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
+    name = "ctindel-squirrel-sg"
+    description = "Allow inbound SSH traffic and web traffic"
+    vpc_id = "${aws_default_vpc.default.id}"
+  
+    ingress {
       from_port = 0
-      to_port = 0
-      protocol = -1
+      to_port = 22
+      protocol = "tcp"
       cidr_blocks = ["0.0.0.0/0"]
-  }
+    }
+  
+    ingress {
+      from_port = 0
+      to_port = 80
+      protocol = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  
+    ingress {
+      from_port = 0
+      to_port = 443
+      protocol = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  
+    egress {
+        from_port = 0
+        to_port = 0
+        protocol = -1
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    tags {
+        Name = "ctindel-hh-sg-${var.env}"
+    }
 }
 
 resource "aws_ebs_volume" "example" {
@@ -166,6 +184,10 @@ data "template_file" "ctindel-squirrel-user-data" {
     squirrelcart_backup_timer = "${file("${path.module}/squirrelcart_backup.timer")}"
     start_squirrel_sh = "${file("${path.module}/start_squirrel.sh")}"
     backup_squirrel_sh = "${file("${path.module}/backup_squirrel.sh")}"
+    generate_cert_sh = "${file("${path.module}/generate_cert.sh")}"
+    nginx_conf = "${file("${path.module}/nginx.conf")}"
+    nginx_http_conf = "${file("${path.module}/nginx.http.conf")}"
+    nginx_https_conf = "${file("${path.module}/nginx.https.conf")}"
     setup_storage_sh = "${file("${path.module}/setup_storage.sh")}"
     squirrel_docker_compose = "${file("${path.module}/../docker-compose.yml")}"
   }

@@ -1,6 +1,27 @@
 version: '2.1'
 services:
 
+  sc-nginx:
+    depends_on:
+      - sc-app
+    image: nginx
+    container_name: sc-nginx
+    hostname: sc-nginx
+    restart: on-failure
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /home/centos/squirrel/nginx:/etc/nginx/conf.d:ro
+      - /mnt/data/letsencrypt/etc:/etc/letsencrypt
+      - /mnt/data/letsencrypt/www:/var/www/letsencrypt
+    networks:
+      sc-net:
+        aliases:
+          - nginx
+    environment:
+      - TZ=UTC
+
   sc-smtp:
     image: ctindel/sc-smtp:${SC_ENV}
     container_name: sc-smtp
@@ -54,23 +75,23 @@ services:
       - 8080:8080
       - 8443:8443
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin:4.7
-    depends_on:
-      - sc-mysql
-    container_name: sc-phpmyadmin
-    environment:
-      PMA_ARBITRARY: 1
-      PMA_HOST: "mysql"
-      PMA_USER: "root"
-      PMA_PASSWORD: "root"
-    restart: on-failure
-    networks:
-      sc-net:
-        aliases:
-          - admin
-    ports:
-      - 8000:8000
+#  phpmyadmin:
+#    image: phpmyadmin/phpmyadmin:4.7
+#    depends_on:
+#      - sc-mysql
+#    container_name: sc-phpmyadmin
+#    environment:
+#      PMA_ARBITRARY: 1
+#      PMA_HOST: "mysql"
+#      PMA_USER: "root"
+#      PMA_PASSWORD: "root"
+#    restart: on-failure
+#    networks:
+#      sc-net:
+#        aliases:
+#          - admin
+#    ports:
+#      - 8000:8000
 
 networks:
   sc-net:
