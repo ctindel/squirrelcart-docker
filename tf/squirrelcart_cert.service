@@ -1,0 +1,6 @@
+[Unit]
+Description=Check for letsencrypt cert update every Friday
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /home/centos/squirrel/generate_cert.sh

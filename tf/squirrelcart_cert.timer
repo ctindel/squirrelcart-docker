@@ -1,0 +1,8 @@
+[Unit]
+Description=Check for letsencrypt cert update every Friday
+
+[Timer]
+OnCalendar=Sat *-*-* 18:00:00
+
+[Install]
+WantedBy=timers.target

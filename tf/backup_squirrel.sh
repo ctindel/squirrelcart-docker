@@ -10,6 +10,8 @@ TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 check_run_cmd "setenforce 0"
 check_run_cmd "rm -rf $BACKUP_DIR && mkdir -p $BACKUP_DIR"
 
+bash /home/centos/squirrel/generate_cert.sh
+
 # Device Mapper Bug will fill up the available space in the docker pool 
 #  as shown by docker info
 # https://stackoverflow.com/questions/27853571/why-is-docker-image-eating-up-my-disk-space-that-is-not-used-by-docker

@@ -182,6 +182,8 @@ data "template_file" "ctindel-squirrel-user-data" {
     squirrelcart_service = "${file("${path.module}/squirrelcart.service")}"
     squirrelcart_backup_service = "${file("${path.module}/squirrelcart_backup.service")}"
     squirrelcart_backup_timer = "${file("${path.module}/squirrelcart_backup.timer")}"
+    squirrelcart_cert_service = "${file("${path.module}/squirrelcart_cert.service")}"
+    squirrelcart_cert_timer = "${file("${path.module}/squirrelcart_cert.timer")}"
     start_squirrel_sh = "${file("${path.module}/start_squirrel.sh")}"
     backup_squirrel_sh = "${file("${path.module}/backup_squirrel.sh")}"
     generate_cert_sh = "${file("${path.module}/generate_cert.sh")}"
