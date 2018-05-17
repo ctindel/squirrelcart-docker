@@ -15,8 +15,8 @@ services:
       sc-build-net:
         aliases:
           - smtp
-    ports:
-      - 25:25
+    expose:
+      - 25
 
   sc-mysql-build:
     build:
@@ -37,8 +37,8 @@ services:
         aliases:
           - db
           - mysql
-    ports:
-      - 3306:3306
+    expose:
+      - 3306
 
   sc-app-build:
     depends_on:

@@ -1,0 +1,20 @@
+[Unit]
+Description=Start Squirrelcart
+After=update_route53_mapping.service
+
+[Service]
+StartLimitInterval=0
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+ExecReload=/usr/bin/kill -HUP $MAINPID
+KillSignal=SIGQUIT
+KillMode=mixed
+RemainAfterExit=yes
+Restart=on-failure
+User=root
+ExecStart=/home/centos/squirrel/start_squirrel.sh
+ExecStop=/bin/true
+
+[Install]
+WantedBy=multi-user.target

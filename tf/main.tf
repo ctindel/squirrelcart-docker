@@ -161,6 +161,7 @@ data "template_file" "ctindel-squirrel-user-data" {
     hostname = "${var.name}"
     sa_dns_domain = "${var.env}.${var.r53_domain}"
     update_route53_mapping_service = "${file("${path.module}/update_route53_mapping.service")}"
+    squirrelcart_service = "${file("${path.module}/squirrelcart.service")}"
     start_squirrel_sh = "${file("${path.module}/start_squirrel.sh")}"
     setup_storage_sh = "${file("${path.module}/setup_storage.sh")}"
     squirrel_docker_compose = "${file("${path.module}/../docker-compose.yml")}"

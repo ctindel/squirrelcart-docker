@@ -18,6 +18,11 @@ write_files:
       content: ${base64encode(update_route53_mapping_service)}
       owner: "root:root"
       permissions: "0644"
+    - path: /etc/systemd/system/squirrelcart.service
+      encoding: base64
+      content: ${base64encode(squirrelcart_service)}
+      owner: "root:root"
+      permissions: "0644"
     - path: /home/centos/squirrel/setup_storage.sh
       encoding: base64
       content: ${base64encode(setup_storage_sh)}
@@ -38,4 +43,4 @@ runcmd:
     # just let the ASG reboot this box every day
     #- echo "/sbin/halt" | /usr/bin/at midnight $$(date -d 'next Saturday' '+%Y-%m-%d')
     - systemctl enable --now update_route53_mapping
-    - bash /home/centos/squirrel/start_squirrel.sh
+    - systemctl enable --now squirrelcart

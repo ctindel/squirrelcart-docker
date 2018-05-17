@@ -20,9 +20,10 @@ check_run_cmd "docker load -i $TMP_DIR/sc-smtp-$SC_ENV.tar"
 docker-compose -f /home/centos/squirrel/docker-compose.yml up -d 
 
 check_run_cmd "docker exec sc-app bash $TMP_DIR/src/wait-for-mysql.sh"
-table_exists=$(docker exec -it sc-app mysql -h mysql -u squirrelcart -psquirrelcart -N -s -e "select count(*) from information_schema.tables where table_schema='${DB}' and table_name='${TEST_TABLE}'")
+table_exists=$(docker exec sc-app mysql -h mysql -u squirrelcart -psquirrelcart -N -s -e "select count(*) from information_schema.tables where table_schema='${DB}' and table_name='${TEST_TABLE}'")
 table_exists=$(echo $table_exists | perl -pe 's/[^\w.-]+//g')
-if [ $table_exists -eq 1 ]; then
+echo "table_exists is $table_exists"
+if [ "$table_exists" -eq "1" ]; then
     echo "Database is already loaded!"
 else
     latest_backup=$(docker run --rm -t $(tty &>/dev/null && echo "-i") -e "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" -e "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" -e "AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}" -v "$(pwd):/project" mesosphere/aws-cli s3 ls s3://$SC_AWS_S3_BUCKET/backup/ | grep PRE | awk '{print $2}' | sort | sed -e 's#/##g')

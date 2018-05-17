@@ -23,11 +23,18 @@ echo "Instance ID: $EC2_INSTANCE_ID"
 echo "Availability Zone: $EC2_AVAIL_ZONE"
 echo "Region: $EC2_REGION"
 
-volume_id=$(docker run --rm -t $(tty &>/dev/null && echo "-i") -e "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" -e "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" -e "AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}" -v "$(pwd):/project" mesosphere/aws-cli ec2 describe-volumes --filters Name=tag-value,Values=ctindel-hh-mysql-prod --query 'Volumes[*].[VolumeId, State==`available`]' --output text | grep True | awk '{print $1}' | head -n 1)
+volume_id=$(docker run --rm -t $(tty &>/dev/null && echo "-i") -e "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" -e "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" -e "AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}" -e "SC_ENV=${SC_ENV}" -v "$(pwd):/project" mesosphere/aws-cli ec2 describe-volumes --filters Name=tag-value,Values=ctindel-hh-mysql-${SC_ENV} --query 'Volumes[*].[VolumeId, State==`available`]' --output text | grep True | awk '{print $1}' | head -n 1)
+volume_id=$(echo $volume_id | perl -pe 's/[^\w.-]+//g')
 
-echo "Volume ID: $volume_id"
+echo "Available Volume ID: $volume_id"
 
-docker run --rm -t $(tty &>/dev/null && echo "-i") -e "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" -e "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" -e "AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}" -v "$(pwd):/project" mesosphere/aws-cli ec2 attach-volume --volume-id $volume_id --instance-id $EC2_INSTANCE_ID --device $DEVICE
+# If the volume is already attached then volume_id will be blank as State will not be "available" so this command would fail
+if [[ $volume_id =~ vol-* ]]; then
+    echo "Attaching Volume $volume_id"
+    docker run --rm -t $(tty &>/dev/null && echo "-i") -e "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" -e "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" -e "AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}" -v "$(pwd):/project" mesosphere/aws-cli ec2 attach-volume --volume-id $volume_id --instance-id $EC2_INSTANCE_ID --device $DEVICE
+else
+    echo "Volume is already attached"
+fi
 
 ######################################################################
 # Volume /dev/sdh (which will get created as /dev/xvdh on Amazon Linux)
