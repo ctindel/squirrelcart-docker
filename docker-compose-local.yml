@@ -1,6 +1,25 @@
 version: '2.1'
 services:
 
+  sc-nginx:
+    depends_on:
+      - sc-app
+    image: nginx
+    container_name: sc-nginx
+    hostname: sc-nginx
+    restart: on-failure
+    ports:
+      - 80:80
+    volumes:
+      - /home/centos/src/squirrelcart-docker/tf/nginx.http.conf:/etc/nginx/conf.d/default.conf:ro
+      - /home/centos/src/squirrelcart-docker/static:/usr/share/nginx/html:ro
+    networks:
+      sc-net:
+        aliases:
+          - nginx
+    environment:
+      - TZ=UTC
+
   sc-smtp:
     image: ctindel/sc-smtp:${SC_ENV}
     container_name: sc-smtp

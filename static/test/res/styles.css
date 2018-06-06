@@ -1,0 +1,318 @@
+/*
+ * Combined style sheet for the index pages and the slide pages.
+ */
+
+/* Style for all bodies. */
+body {
+  font-style: normal;
+  font-weight: normal;
+  font-family: "Arial", "Helvetica", "sans-serif";
+  text-align: justify;
+  color: #FFFFFF;
+  background-color: #333333;
+  background-attachment: fixed;
+  margin: 0px;
+
+  scrollbar-face-color: #666666;
+  scrollbar-highlight-color: #000000;
+  scrollbar-3dlight-color: #000000;
+  scrollbar-darkshadow-color: #000000;
+  scrollbar-shadow-color: #000000;
+  scrollbar-arrow-color: #000000;
+  scrollbar-track-color: #333333;
+}
+  
+ /* Headers */
+
+H1{
+  font-weight: bold;
+  color: #FFFFFF;
+}
+H2 {
+  font-weight: bold;
+  color: #FFFFFF;
+}
+H3 {font-weight: bold;	color: #FFFFFF;}
+H4 {font-weight: bold; color : #FFFFFF;}
+H5 {font-weight: bold; color : #FFFFFF;}
+H6 {font-weight: bold; color : #FFFFFF;}
+
+/* Style for all table cells. */
+td {
+	font-size: 10pt;
+}
+.close {
+  background-image: url(/remove.gif);
+  background-position: top right;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.botao {
+  font-size: 10pt;
+  font-weight: bold;
+  background-color: #666666;
+  color: #000033;
+  border: 4 outset #CCCCCC;
+  cursor: pointer;
+  cursor: hand;
+}
+
+/* Put a border on all generated images */
+.folder {
+  background-color: #666666;
+  border: 8px #CCCCCC;
+  border-style: groove;
+  margin-top: 6px;
+}
+.thumb{
+  border-width: 4px;
+  border-color: #CCCCCC;
+  border-style: ridge;
+  margin-top: 6px;
+  background-color: #333333;
+}
+.image {
+  border-width: 3px;
+  border-color: #CCCCCC;
+  border-style: ridge;
+  margin: 0;
+  background-color: #666666;
+}
+.closeup {
+  border-width: 3px;
+  border-color: #CCCCCC;
+  border-style: ridge;
+  margin: 0;
+  background-color: #666666;
+}
+.head{
+  font-weight: bold;
+  font-size: 14px;
+  text-align: center;
+}
+.footer{
+  background-color: inherit;
+  font-weight: lighter;
+  font-size: 11px;
+  text-align: center;
+  border: 1px;
+  border-color: inherit;
+}
+.top {
+  background-image: url(/black_top70.jpg);
+  color: #4B0082;
+}
+.bottom {
+  background-image: url(/black_nav30.jpg);
+  color: #cccccc;
+}
+
+.thumbbar {
+  border: 4px;
+  border-color: #666666;
+  border-style: inset;
+  vertical-align: middle;
+}
+.thumblinks {
+  background-image: url(/black_i_thumb80.jpg);
+  color: #4B0082;
+  text-align: center;
+  border: 1px;
+  border-color: #333333;
+  border-style: ridge;
+  height: 80px;
+}
+tr.nav {
+  background-image: url(/black_nav30.jpg);
+  border: 0px;
+  height: 30px;
+}
+.nav {
+  font-size: 1px;
+  padding: 0;
+  letter-spacing: 4px;
+  text-align: center;
+  color: #cccccc;
+  background-color: #262626;
+  border: 2px;
+  border-color: #333333;
+  border-style: ridge;
+  vertical-align: middle;
+}
+.number
+{
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  color: #333333;
+  background-color: #666666;
+  border: 4px;
+  border-color: #434343;
+  border-style: outset;
+}
+.date
+{
+  font-size: 12px;
+  text-align: center;
+  color: #333333;
+  background-color: #666666;
+  border: 4px;
+  border-color: #434343;
+  border-style: outset;
+}
+.name
+{
+	font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  color: #333333;
+  background-color: #666666;
+  border: 4px;
+  border-color: #434343;
+  border-style: outset;
+}
+.comment
+{
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  background-color: inherit;
+}
+
+/* Align the content of the cells on the index pages to the center. */
+#index td {
+	text-align: center;
+}
+
+/* Remove the margin under the images on the index pages. */
+#index .image {
+	margin-left: 2;
+	margin-right: 2;
+	margin-bottom: 0;
+}
+
+/* Don't have margins on the slide pages. */
+body#slide {
+	margin: 0;
+}
+
+/* Highlight the image name on the slide pages. */
+#slide .name {
+	font-weight: bold;
+	font-size: 14px;
+}
+
+/* Custom link styles */
+a:link {
+  text-decoration: none;
+  color: #CCCCFF;
+}
+a:visited {
+  text-decoration: none;
+  color: #CCCCCC;
+}
+a:hover {
+  text-decoration: none;
+  color: #FFFFCC;
+}
+a:active {
+  text-decoration: none;
+  color: #CCFF00;
+}
+
+#imageinfo {
+	visibility: hidden;
+}
+
+.menu {
+  border-width: 1px;
+  border-style: outset;
+  border-color: #666699;
+  background: transparent;
+}
+
+/* shopcart */
+.select {
+  background-color: #000033;
+  color: #CCCC66;
+  text-align: center;
+  font-size: 12px;
+}
+.input {
+  background-color: #000033;
+  color: #CCCC66;
+  text-align: center;
+}
+.price {
+  background-color: #000033;
+  color: #CCCC66;
+  text-align: right;
+  border: 0px;
+  border-style: solid;
+  border-color: #6666CC;
+}
+.checkout {
+  font-size: 12px;
+  color: #330066;
+  text-align: left;
+}
+.checkoutinput {
+  font-size: 12px;
+  color: #330066;
+  text-align: left;
+}
+.nopcart {
+  background: #000033;
+  font-size: 12px;
+  color: #99CCFF;
+  border: 2px;
+  border-style: groove;
+  border-color: #6666FF;
+}
+.nopheader {  background: #000033;
+  font-size: 12px;
+  color: #ffffff;
+  text-align: center;
+  border: 2px;
+  border-style: inset;
+  border-color: #6666FF;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+.nopentry {
+  background: #6666CC;
+  border: 2px;
+  font-size: 12px;
+  text-align: center;
+  color: #000033;
+  border: 1px;
+  border-style: solid;
+  border-color: #6666FF;
+  padding-left: 6px;
+  padding-right: 6px; 
+}
+.noptotal {
+  background: #6666CC;
+  font-size: 12px;
+  text-align: left;
+  color: #000033;
+  border: 1px;
+  border-style: solid;
+  border-color: #6666FF;
+  padding-left: 17px;
+}
+.nopbutton {  
+  font-size: 10px;
+  font-weight: bold;
+  text-align: center;
+  background-color: #333366;
+  color: #ccccff;
+  border: outset #4C4C98;
+  cursor: pointer;
+  cursor: hand;
+}
+
+/*  */
+/*  */
+/*  */

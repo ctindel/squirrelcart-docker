@@ -29,6 +29,7 @@ USAGE="SC Admin Usage: $0 [-v]
            build-docker
            push-docker
            local-deploy
+           local-stop
            validate-environment"
 
 declare -a SC_ADMIN_CMDS=(
@@ -36,6 +37,7 @@ declare -a SC_ADMIN_CMDS=(
     "build-docker"
     "push-docker"
     "local-deploy"
+    "local-stop"
 )
 
 # These variables must be set external to this script for
@@ -272,16 +274,25 @@ function local_deploy() {
 
     check_run_cmd "docker-compose -f docker-compose-local.yml up -d"
 
-    latest_backup=$(aws s3 ls s3://$SC_AWS_S3_BUCKET/backup/${SC_ENV}/ | grep PRE | awk '{print $2}' | sort | sed -e 's#/##g')
+    latest_backup=$(aws s3 ls s3://$SC_AWS_S3_BUCKET/backup/${SC_ENV}/ | grep PRE | awk '{print $2}' | sort -r | sed -e 's#/##g' | head -1)
     check_run_cmd "aws s3 cp s3://$SC_AWS_S3_BUCKET/backup/${SC_ENV}/$latest_backup/$latest_backup-squirrelcart-hh.tar.gz $TMP_DIR/squirrelcart-hh.tar.gz"
     check_run_cmd "aws s3 cp s3://$SC_AWS_S3_BUCKET/backup/${SC_ENV}/$latest_backup/$latest_backup-squirrelcart-hh.sql.gz $TMP_DIR/squirrelcart-hh.sql.gz"
     check_run_cmd "docker cp $TMP_DIR/squirrelcart-hh.sql.gz sc-app:$TMP_DIR"
     check_run_cmd "docker cp $TMP_DIR/squirrelcart-hh.tar.gz sc-app:$TMP_DIR"
     check_run_cmd "docker exec sc-app bash $TMP_DIR/src/install.sh"
+    check_run_cmd "docker exec sc-app sed -i.bak $'s,\$site_www_root.*,\$site_www_root = \'http://localhost:8080/store\';,g' /project/squirrelcart-hh/squirrelcart/config.php"
 
     echo "When app is ready connect to http://localhost:8080 or for phpmyadmin http://localhost:8000"
 
     debug_print "END local_deploy"
+}
+
+function local_stop() {
+    debug_print "BEGIN local_stop"
+
+    check_run_cmd "docker-compose -f docker-compose-local.yml down"
+
+    debug_print "END local_stop"
 }
 
 function execute_admin_cmd() {
@@ -299,6 +310,9 @@ function execute_admin_cmd() {
             ;;
         "local-deploy")
             local_deploy
+            ;;
+        "local-stop")
+            local_stop
             ;;
     esac
 }

@@ -42,5 +42,5 @@ else
     check_run_cmd "docker exec sc-app bash $TMP_DIR/src/install.sh"
 fi
 
-check_run_cmd "docker exec sc-app sed -i.bak $'s,\$site_www_root.*,\$site_www_root = \'https://ctindel-squirrel.prod.sa.elastic.co\';,g' /project/squirrelcart-hh/squirrelcart/config.php"
+check_run_cmd "docker exec sc-app sed -i.bak $'s,\$site_www_root.*,\$site_www_root = \'https://ctindel-squirrel.prod.sa.elastic.co/store\';,g' /project/squirrelcart-hh/squirrelcart/config.php"
 #rm -rf $TMP_DIR
