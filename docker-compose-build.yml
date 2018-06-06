@@ -1,6 +1,19 @@
 version: '2.1'
 services:
 
+  sc-nginx-build:
+    image: nginx:1.15
+    container_name: sc-nginx-build
+    restart: on-failure
+    networks:
+      sc-build-net:
+        aliases:
+          - nginx
+    environment:
+      - TZ=UTC
+    expose:
+      - 80
+
   sc-smtp-build:
     build:
       context: docker_smtp

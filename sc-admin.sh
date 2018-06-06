@@ -12,16 +12,19 @@ SC_DOCKER_BUILD_CONTAINERS=(
 "sc-smtp-build"
 "sc-mysql-build"
 "sc-app-build"
+"sc-nginx-build"
 )
 SC_DOCKER_BUILD_IMAGES=(
 "sc-smtp-build:$SC_ENV"
 "sc-mysql-build:$SC_ENV"
 "sc-app-build:$SC_ENV"
+"sc-nginx-build:$SC_ENV"
 )
 SC_DOCKER_IMAGES=(
 "$SC_DOCKER_REGISTRY/sc-smtp:$SC_ENV"
 "$SC_DOCKER_REGISTRY/sc-mysql:$SC_ENV"
 "$SC_DOCKER_REGISTRY/sc-app:$SC_ENV"
+"$SC_DOCKER_REGISTRY/sc-nginx:$SC_ENV"
 )
 
 USAGE="SC Admin Usage: $0 [-v]
@@ -210,15 +213,23 @@ function build_docker() {
     check_run_cmd "docker-compose -f docker-compose-build.yml build --force-rm --pull --no-cache sc-smtp-build"
     check_run_cmd "docker-compose -f docker-compose-build.yml build --force-rm --pull --no-cache sc-mysql-build"
     check_run_cmd "docker-compose -f docker-compose-build.yml build --force-rm --pull --no-cache sc-app-build"
-    check_run_cmd "docker-compose -f docker-compose-build.yml up -d sc-app-build"
+    check_run_cmd "docker-compose -f docker-compose-build.yml up -d"
     check_run_cmd "aws s3 cp s3://$SC_AWS_S3_BUCKET/backup/${SC_ENV}/$latest_backup/$latest_backup-squirrelcart-hh.tar.gz $TMP_DIR/squirrelcart-hh.tar.gz"
     check_run_cmd "aws s3 cp s3://$SC_AWS_S3_BUCKET/backup/${SC_ENV}/$latest_backup/$latest_backup-squirrelcart-hh.sql.gz $TMP_DIR/squirrelcart-hh.sql.gz"
     check_run_cmd "docker cp $TMP_DIR/squirrelcart-hh.sql.gz sc-app-build:$TMP_DIR"
     check_run_cmd "docker cp $TMP_DIR/squirrelcart-hh.tar.gz sc-app-build:$TMP_DIR"
+    check_run_cmd "docker exec sc-nginx-build rm -rf /usr/share/nginx/html && docker cp static sc-nginx-build:/usr/share/nginx/html"
     check_run_cmd "docker exec sc-app-build bash $TMP_DIR/src/install.sh"
-    check_run_cmd "docker commit sc-smtp-build $SC_DOCKER_REGISTRY/sc-smtp:$SC_ENV"
-    check_run_cmd "docker commit sc-mysql-build $SC_DOCKER_REGISTRY/sc-mysql:$SC_ENV"
-    check_run_cmd "docker commit sc-app-build $SC_DOCKER_REGISTRY/sc-app:$SC_ENV"
+    for image in "${SC_DOCKER_IMAGES[@]}"; do
+        # Strip out the registry name
+        container_name=$(echo $image | sed -e 's@.*/@@')
+        echo "container_name = $container_name"
+        # sc-app:dev
+        container_name=$(echo $container_name | cut -d: -f1) 
+        container_name+="-build"
+        echo "container_name = $container_name"
+        check_run_cmd "docker commit $container_name $image"
+    done
     check_run_cmd "docker-compose -f docker-compose-build.yml down"
     check_run_cmd "sudo rm -rf $TMP_DIR/mysql_build_data"
 
@@ -263,13 +274,19 @@ function local_deploy() {
         check_run_cmd "mkdir -p $TMP_DIR"
         check_run_cmd "sudo rm -rf $TMP_DIR/mysql_data && mkdir -p $TMP_DIR/mysql_data"
 
-        check_run_cmd "aws s3 cp --region $SC_AWS_REGION \"s3://$SC_AWS_S3_BUCKET/docker/sc-mysql-$SC_ENV.tar\" $TMP_DIR"
-        check_run_cmd "aws s3 cp --region $SC_AWS_REGION \"s3://$SC_AWS_S3_BUCKET/docker/sc-app-$SC_ENV.tar\" $TMP_DIR"
-        check_run_cmd "aws s3 cp --region $SC_AWS_REGION \"s3://$SC_AWS_S3_BUCKET/docker/sc-smtp-$SC_ENV.tar\" $TMP_DIR"
-
-        check_run_cmd "docker load -i $TMP_DIR/sc-mysql-$SC_ENV.tar"
-        check_run_cmd "docker load -i $TMP_DIR/sc-app-$SC_ENV.tar"
-        check_run_cmd "docker load -i $TMP_DIR/sc-smtp-$SC_ENV.tar"
+        for image in "${SC_DOCKER_IMAGES[@]}"; do
+            # Strip out the registry name
+            image_name=$(echo $image | sed -e 's@.*/@@')
+            echo "image_name = $image_name"
+            # sc-app:dev
+            tar_name=$(echo $image_name | tr ':' '-')
+            tar_name+=".tar"
+            # File name will have the environment name in it already
+            # sc-app-dev.tar
+            echo "tar_name = $tar_name"
+            check_run_cmd "aws s3 cp --region $SC_AWS_REGION \"s3://$SC_AWS_S3_BUCKET/docker/$tar_name\" $TMP_DIR"
+            check_run_cmd "docker load -i $TMP_DIR/$tar_name"
+        done
     fi
 
     check_run_cmd "docker-compose -f docker-compose-local.yml up -d"

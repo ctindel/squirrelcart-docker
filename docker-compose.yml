@@ -4,7 +4,7 @@ services:
   sc-nginx:
     depends_on:
       - sc-app
-    image: nginx
+    image: ctindel/sc-nginx:${SC_ENV}
     container_name: sc-nginx
     hostname: sc-nginx
     restart: on-failure
@@ -13,7 +13,6 @@ services:
       - 443:443
     volumes:
       - /home/centos/squirrel/nginx:/etc/nginx/conf.d:ro
-      - /home/centos/src/squirrelcart-docker/static:/usr/share/nginx/html:ro
       - /mnt/data/letsencrypt/etc:/etc/letsencrypt
       - /mnt/data/letsencrypt/www:/var/www/letsencrypt
     networks:
