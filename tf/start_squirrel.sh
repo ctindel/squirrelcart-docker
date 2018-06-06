@@ -4,6 +4,8 @@ source /home/centos/utils/utils.sh
 TMP_DIR=/tmp/sc
 DB=squirrelcart
 TEST_TABLE=Products
+FQDN="ctindel-squirrel.prod.sa.elastic.co"
+GITHUB_REPO=https://github.com/ctindel/squirrelcart-docker
 mkdir -p $TMP_DIR
 
 check_run_cmd "setenforce 0"
@@ -16,6 +18,8 @@ docker run --rm -t  -e "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" -e "AWS_SECRET_ACC
 check_run_cmd "docker load -i $TMP_DIR/sc-mysql-$SC_ENV.tar"
 check_run_cmd "docker load -i $TMP_DIR/sc-app-$SC_ENV.tar"
 check_run_cmd "docker load -i $TMP_DIR/sc-smtp-$SC_ENV.tar"
+
+check_run_cmd "mkdir -p /home/centos/src/squirrelcart-docker && git clone $GITHUB_REPO /home/centos/src/squirrelcart-docker"
 
 # We only want to enable http by default because if we don't have our certs 
 #  yet then the https server will fail
@@ -42,5 +46,5 @@ else
     check_run_cmd "docker exec sc-app bash $TMP_DIR/src/install.sh"
 fi
 
-check_run_cmd "docker exec sc-app sed -i.bak $'s,\$site_www_root.*,\$site_www_root = \'https://ctindel-squirrel.prod.sa.elastic.co/store\';,g' /project/squirrelcart-hh/squirrelcart/config.php"
+check_run_cmd "docker exec sc-app sed -i.bak $'s,\$site_www_root.*,\$site_www_root = \'https://$FQDN/store\';,g' /project/squirrelcart-hh/squirrelcart/config.php"
 #rm -rf $TMP_DIR

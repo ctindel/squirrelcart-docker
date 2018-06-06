@@ -16,7 +16,8 @@ DEVICE=/dev/xvdh
 MOUNT_POINT=/mnt/data
 MYSQL_DATA_DIR=$MOUNT_POINT/mysql
 
-run_cmd "lvextend -l +100%FREE /dev/atomicos/root"
+run_cmd "lvextend -l +50%FREE /dev/atomicos/root"
+run_cmd "lvextend -l +100%FREE docker-pool"
 check_run_cmd "xfs_growfs  /"
 
 echo "Instance ID: $EC2_INSTANCE_ID"
