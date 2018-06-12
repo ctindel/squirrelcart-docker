@@ -17,6 +17,25 @@ export SC_AWS_REGION=$SC_AWS_REGION
 export SC_AWS_S3_BUCKET=$SC_AWS_S3_BUCKET
 EOF
 
+
+echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> /home/centos/.bash_profile
+echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> /home/centos/.bash_profile
+echo "export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION" >> /home/centos/.bash_profile
+echo "export SC_ENV=$SC_ENV" >> /home/centos/.bash_profile
+echo "export SC_SMTP_USERNAME=$SC_SMTP_USERNAME" >> /home/centos/.bash_profile
+echo "export SC_SMTP_PASSWORD=$SC_SMTP_PASSWORD" >> /home/centos/.bash_profile
+echo "export SC_AWS_REGION=$SC_AWS_REGION" >> /home/centos/.bash_profile
+echo "export SC_AWS_S3_BUCKET=$SC_AWS_S3_BUCKET" >> /home/centos/.bash_profile
+
+echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> /root/.bash_profile
+echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> /root/.bash_profile
+echo "export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION" >> /root/.bash_profile
+echo "export SC_ENV=$SC_ENV" >> /root/.bash_profile
+echo "export SC_SMTP_USERNAME=$SC_SMTP_USERNAME" >> /root/.bash_profile
+echo "export SC_SMTP_PASSWORD=$SC_SMTP_PASSWORD" >> /root/.bash_profile
+echo "export SC_AWS_REGION=$SC_AWS_REGION" >> /root/.bash_profile
+echo "export SC_AWS_S3_BUCKET=$SC_AWS_S3_BUCKET" >> /root/.bash_profile
+
 cat - >> /home/centos/utils/utils.sh << 'EOF'
 RETRY_COUNT=5
 
@@ -27,7 +46,7 @@ function debug_print() {
 }
 
 function cleanup() {
-
+    :
 }
 
 function check_run_cmd() {

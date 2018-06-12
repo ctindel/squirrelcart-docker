@@ -88,7 +88,7 @@ resource "aws_route53_record" "hoffman-house_com" {
   name    = "${var.r53_domain}"
   type    = "A"
   ttl     = "86048"
-  records = ["162.215.248.217"]
+  records = ["hh-app.${var.env}.${var.r53_domain}"]
 }
 
 resource "aws_route53_record" "www_hoffman-house_com" {
