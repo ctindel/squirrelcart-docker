@@ -4,4 +4,4 @@ curl -L https://github.com/docker/compose/releases/download/1.21.0/docker-compos
 
 chmod +x /usr/local/bin/docker-compose
 
-docker pull ekho/certbot
+docker pull webdevops/certbot

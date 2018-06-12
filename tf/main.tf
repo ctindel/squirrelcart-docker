@@ -83,13 +83,13 @@ resource "aws_default_subnet" "default_az3" {
     }
 }
 
-resource "aws_route53_record" "hoffman-house_com" {
-  zone_id = "${var.r53_zone_id}"
-  name    = "${var.r53_domain}"
-  type    = "A"
-  ttl     = "86048"
-  records = ["hh-app.${var.env}.${var.r53_domain}"]
-}
+#resource "aws_route53_record" "hoffman-house_com" {
+#  zone_id = "${var.r53_zone_id}"
+#  name    = "${var.r53_domain}"
+#  type    = "A"
+#  ttl     = "86048"
+#  records = ["hh-app.${var.env}.${var.r53_domain}"]
+#}
 
 resource "aws_route53_record" "www_hoffman-house_com" {
   zone_id = "${var.r53_zone_id}"
@@ -203,6 +203,13 @@ resource "aws_autoscaling_group" "hh-squirrel-asg" {
   tag {
     key = "env"
     value = "${var.env}"
+    propagate_at_launch = true
+  }
+
+  # Only when we deploy on prod via terraform do we want to update the hoffman-house.com and www.hoffman-house.com DNS entries
+  tag {
+    key = "DNS_UPDATE_PROD_ENTRIES"
+    value = "true"
     propagate_at_launch = true
   }
 }
