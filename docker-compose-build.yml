@@ -17,7 +17,7 @@ services:
   sc-smtp-build:
     build:
       context: docker_smtp
-    image: ctindel/sc-smtp-build:${SC_ENV}
+    image: sah/sc-smtp-build:${SC_ENV}
     container_name: sc-smtp-build
     restart: on-failure
     environment:
@@ -34,7 +34,7 @@ services:
   sc-mysql-build:
     build:
       context: docker_mysql
-    image: ctindel/sc-mysql-build:${SC_ENV}
+    image: sah/sc-mysql-build:${SC_ENV}
     container_name: sc-mysql-build
     restart: on-failure
     environment:
@@ -59,10 +59,10 @@ services:
       - sc-mysql-build
     build:
       context: docker_squirrelcart
-    image: ctindel/sc-app-build:${SC_ENV}
+    image: sah/sc-app-build:${SC_ENV}
     container_name: sc-app-build
     environment:
-      - APACHE_SERVER_NAME=ctindel-build.prod.sa.elastic.co
+      - APACHE_SERVER_NAME=hh-app.${SC_ENV}.hoffman-house.com
     restart: on-failure
     networks:
       sc-build-net:

@@ -1,10 +1,10 @@
 #!/bin/bash
 
 export SC_AWS_REGION="us-east-2"
-export SC_AWS_S3_BUCKET="ctindel-squirrel"
+export SC_AWS_S3_BUCKET="hoffman-house.com"
 export SC_AWS_SES_SMTP_ENDPOINT="email-smtp.us-east-1.amazonaws.com"
 export TMP_DIR="/tmp/sc"
-export SC_DOCKER_REGISTRY="ctindel"
+export SC_DOCKER_REGISTRY="sah"
 SC_VER="squirrelcart-pro-v3.0.1"
 SC_TARBALL="$SC_VER.tar.gz"
 
@@ -29,6 +29,7 @@ SC_DOCKER_IMAGES=(
 
 USAGE="SC Admin Usage: $0 [-v]
            build-ami
+           build-atomic-ami
            build-docker
            push-docker
            local-deploy
@@ -37,6 +38,7 @@ USAGE="SC Admin Usage: $0 [-v]
 
 declare -a SC_ADMIN_CMDS=(
     "build-ami"
+    "build-atomic-ami"
     "build-docker"
     "push-docker"
     "local-deploy"
@@ -44,11 +46,14 @@ declare -a SC_ADMIN_CMDS=(
 )
 
 # These variables must be set external to this script for
-#  for commands that are used by SA Demo Admins (in addition to the
+#  for commands that are used by HH Admins (in addition to the
 #  variables required for normal users
 declare -a SC_ADMIN_REQUIRED_EXT_ENV_VARS=(
     "SC_DIR"
     "SC_ENV"
+    "SC_SMTP_ENDPOINT"
+    "SC_SMTP_USERNAME"
+    "SC_SMTP_PASSWORD"
     "AWS_DEFAULT_REGION"
     "AWS_ACCESS_KEY_ID"
     "AWS_SECRET_ACCESS_KEY"
@@ -197,9 +202,17 @@ function validate_admin_required_external_environment() {
 function build_ami() {
     debug_print "BEGIN build_ami"
 
-    check_run_cmd "cd packer/aws; packer build squirrelcart-docker.json; cd $SC_DIR"
+    check_run_cmd "cd packer/aws; packer build hh-builder.json; cd $SC_DIR"
 
-    debug_print "END build_docker"
+    debug_print "END build_ami"
+}
+
+function build_atomic_ami() {
+    debug_print "BEGIN build_atomic_ami"
+
+    check_run_cmd "cd packer/aws; packer build hh-docker.json; cd $SC_DIR"
+
+    debug_print "END build_atomic_ami"
 }
 
 function build_docker() {
@@ -318,6 +331,9 @@ function execute_admin_cmd() {
     case $admin_cmd in
         "build-ami")
             build_ami
+            ;;
+        "build-atomic-ami")
+            build_atomic_ami
             ;;
         "build-docker")
             build_docker

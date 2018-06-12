@@ -4,7 +4,7 @@ services:
   sc-nginx:
     depends_on:
       - sc-app
-    image: ctindel/sc-nginx:${SC_ENV}
+    image: sah/sc-nginx:${SC_ENV}
     container_name: sc-nginx
     hostname: sc-nginx
     restart: on-failure
@@ -20,7 +20,7 @@ services:
       - TZ=UTC
 
   sc-smtp:
-    image: ctindel/sc-smtp:${SC_ENV}
+    image: sah/sc-smtp:${SC_ENV}
     container_name: sc-smtp
     restart: on-failure
     environment:
@@ -35,7 +35,7 @@ services:
       - 25
 
   sc-mysql:
-    image: ctindel/sc-mysql:${SC_ENV}
+    image: sah/sc-mysql:${SC_ENV}
     container_name: sc-mysql
     restart: on-failure
     environment:
@@ -58,10 +58,10 @@ services:
     depends_on:
       - sc-smtp
       - sc-mysql
-    image: ctindel/sc-app:${SC_ENV}
+    image: sah/sc-app:${SC_ENV}
     container_name: sc-app
     environment:
-      - APACHE_SERVER_NAME=ctindel.prod.sa.elastic.co
+      - APACHE_SERVER_NAME=hh-app.${SC_ENV}.hoffman-house.com
     restart: on-failure
     networks:
       sc-net:

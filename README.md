@@ -34,6 +34,14 @@ this automatically here: https://docs.aws.amazon.com/AmazonCloudWatch/latest/mon
 1. You can stop the local website by `./sc-admin.sh local-stop`
 1. `./sc-admin.sh push-docker` (this pushes the docker images to an s3 bucket so our ec2 instance can load them later)
 
+# Creating an Atomic AMI
+1. You need to create an AMI based on Atomic which is a thinly provisioned 
+docker host.  This is where the docker containers will run.
+   1. `./sc-admin.sh build-atomic-ami`
+1. Every time you do this you will need to re-apply the terraform configuration
+as the ASG will reference the old AMI id and so will fail to restart when the 
+host OS shuts down.
+
 # Deploying the terraform Configuration
 1. Terraform is responsible for setting up and instantiating the AWS infrastructure.  
 It keeps it's state files in s3 and that's why we need to do the init.sh before every command.

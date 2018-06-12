@@ -4,8 +4,7 @@ source /home/centos/utils/utils.sh
 TMP_DIR=/tmp/sc
 DB=squirrelcart
 TEST_TABLE=Products
-FQDN="ctindel-squirrel.prod.sa.elastic.co"
-GITHUB_REPO=https://github.com/ctindel/squirrelcart-docker
+FQDN="www.hoffman-house.com"
 mkdir -p $TMP_DIR
 
 check_run_cmd "setenforce 0"

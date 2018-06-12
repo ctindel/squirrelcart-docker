@@ -14,7 +14,7 @@
 
 # ENV_DIR should be "global"
 readonly ROOT_DIR=${PWD##*/}
-readonly S3_BUCKET="ctindel-squirrel"
+readonly S3_BUCKET="hoffman-house.com"
 
 ##### Functions
 

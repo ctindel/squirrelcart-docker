@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-      bucket = "ctindel-squirrel"
+      bucket = "hoffman-house.com"
       key = "tf/terraform.tfstate"
       region = "us-east-2"
   }
@@ -11,12 +11,12 @@ provider "aws" {
 }
 
 variable name {
-  default = "ctindel-squirrel"
+  default = "hh-app"
   description = "The environment name; used as a prefix when naming resources."
 }
 
 variable unixid {
-  default = "ctindel"
+  default = "sah"
   description = "SA Unix Username"
 }
 
@@ -36,15 +36,19 @@ variable env {
 }
 
 variable r53_domain {
-  default = "sa.elastic.co"
+  default = "hoffman-house.com"
   description = "domain"
 }
 
-data "aws_ami" "ctindel-squirrel-ami" {
+variable "r53_zone_id" {
+  default = "Z3NM2RE1EBLTT5"
+}
+
+data "aws_ami" "hh-squirrel-ami" {
   most_recent = true
   filter {
     name = "name"
-    values = ["ctindel-squirrel-${var.env}"]
+    values = ["hh-squirrel-${var.env}"]
   }
   owners = ["self"]
 }
@@ -79,8 +83,41 @@ resource "aws_default_subnet" "default_az3" {
     }
 }
 
-resource "aws_security_group" "ctindel-squirrel-sg" {
-    name = "ctindel-squirrel-sg"
+resource "aws_route53_record" "hoffman-house_com" {
+  zone_id = "${var.r53_zone_id}"
+  name    = "${var.r53_domain}"
+  type    = "A"
+  ttl     = "86048"
+  records = ["162.215.248.217"]
+}
+
+resource "aws_route53_record" "www_hoffman-house_com" {
+  zone_id = "${var.r53_zone_id}"
+  name    = "www"
+  type    = "CNAME"
+  ttl     = "86048"
+  records = ["${var.r53_domain}"]
+}
+
+resource "aws_route53_record" "mail_hoffman-house_com" {
+  zone_id = "${var.r53_zone_id}"
+  name    = "mail"
+  type    = "CNAME"
+  ttl     = "86048"
+  records = ["shared49.accountservergroup.com"]
+}
+
+resource "aws_route53_record" "hoffman-house_mx" {
+  zone_id = "${var.r53_zone_id}"
+  name    = "${var.r53_domain}"
+  type    = "MX"
+  ttl     = "3600"
+  records = ["0 mail.hoffman-house.com",
+             "10 shared49.accountservergroup.com"]
+}
+
+resource "aws_security_group" "hh-squirrel-sg" {
+    name = "hh-squirrel-sg"
     description = "Allow inbound SSH traffic and web traffic"
     vpc_id = "${aws_default_vpc.default.id}"
   
@@ -113,27 +150,27 @@ resource "aws_security_group" "ctindel-squirrel-sg" {
     }
 
     tags {
-        Name = "ctindel-hh-sg-${var.env}"
+        Name = "hh-sg-${var.env}"
     }
 }
 
-resource "aws_ebs_volume" "example" {
+resource "aws_ebs_volume" "data" {
     availability_zone = "us-east-2a"
     size = 1
     encrypted = true
     tags {
-        Name = "ctindel-hh-mysql-${var.env}"
+        Name = "hh-mysql-${var.env}"
     }
 }
 
-resource "aws_launch_configuration" "ctindel-squirrel-lc" {
-    name_prefix = "ctindel-squirrel-"
-    image_id = "${data.aws_ami.ctindel-squirrel-ami.id}"
+resource "aws_launch_configuration" "hh-squirrel-lc" {
+    name_prefix = "hh-squirrel-"
+    image_id = "${data.aws_ami.hh-squirrel-ami.id}"
     instance_type = "${var.ec2_instance_type}"
     associate_public_ip_address = true
-    key_name = "ctindel-hh-20180515"
-    security_groups = [ "${aws_security_group.ctindel-squirrel-sg.id}" ]
-    user_data = "${data.template_cloudinit_config.ctindel-squirrel-user-data.rendered}"
+    key_name = "hh-20180608"
+    security_groups = [ "${aws_security_group.hh-squirrel-sg.id}" ]
+    user_data = "${data.template_cloudinit_config.hh-squirrel-user-data.rendered}"
 
     lifecycle {
         create_before_destroy = true
@@ -145,15 +182,15 @@ resource "aws_launch_configuration" "ctindel-squirrel-lc" {
     }
 }
 
-resource "aws_autoscaling_group" "ctindel-squirrel-asg" {
-  name = "ctindel-squirrel-asg"
+resource "aws_autoscaling_group" "hh-squirrel-asg" {
+  name = "hh-squirrel-asg"
   max_size = "1"
   min_size = "1"
   health_check_grace_period = 300
   health_check_type = "EC2"
   desired_capacity = 1
   force_delete = false
-  launch_configuration = "${aws_launch_configuration.ctindel-squirrel-lc.name}"
+  launch_configuration = "${aws_launch_configuration.hh-squirrel-lc.name}"
   # We only run in 1 AZ because we have to create the mysql EBS volume in a specific AZ
   vpc_zone_identifier = ["${aws_default_subnet.default_az1.id}"]
 
@@ -170,14 +207,14 @@ resource "aws_autoscaling_group" "ctindel-squirrel-asg" {
   }
 }
 
-data "template_file" "ctindel-squirrel-user-data" {
+data "template_file" "hh-squirrel-user-data" {
   template = "${file("${path.module}/user_data.yml")}"
 
   vars {
     aws_region = "${var.region}"
     env = "${var.env}"
     hostname = "${var.name}"
-    sa_dns_domain = "${var.env}.${var.r53_domain}"
+    hh_dns_domain = "${var.env}.${var.r53_domain}"
     update_route53_mapping_service = "${file("${path.module}/update_route53_mapping.service")}"
     squirrelcart_service = "${file("${path.module}/squirrelcart.service")}"
     squirrelcart_backup_service = "${file("${path.module}/squirrelcart_backup.service")}"
@@ -197,12 +234,12 @@ data "template_file" "ctindel-squirrel-user-data" {
 
 # Render a multi-part cloudinit config making use of the part
 # above, and other source files
-data "template_cloudinit_config" "ctindel-squirrel-user-data" {
+data "template_cloudinit_config" "hh-squirrel-user-data" {
   gzip          = true
   base64_encode = false
 
   part {
     content_type = "text/cloud-config"
-    content      = "${data.template_file.ctindel-squirrel-user-data.rendered}"
+    content      = "${data.template_file.hh-squirrel-user-data.rendered}"
   }
 }

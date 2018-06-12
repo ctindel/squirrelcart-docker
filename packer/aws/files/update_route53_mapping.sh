@@ -7,7 +7,7 @@ docker pull mesosphere/aws-cli || exit 1
 
 # This script will look up the value of the "Name" tag
 #  and associate the dynamically assigned public hostname
-#  with that Name tag value + .sa.elastic.co
+#  with that Name tag value + .hoffman-house.com
 # This makes it so that you don't need to associate an elastic IP
 # NOTE: You have to call the tag "Name" and not "name" or "NAME"
 #  because the AWS CLI filters interface is case sensitive
@@ -15,8 +15,8 @@ docker pull mesosphere/aws-cli || exit 1
 echo "Begin update_route53_mapping.sh" 
 
 # The zone ID was assigned by infra team so just hardcoding it here
-HOSTED_ZONE_ID="Z1NX9AB6R0TE36"
-SA_DOMAIN="sa.elastic.co"
+HOSTED_ZONE_ID="Z3NM2RE1EBLTT5"
+HH_DOMAIN="hoffman-house.com"
 TTL=30
 INSTANCE_ID=$(docker run --rm peopleperhour/ec2-metadata --instance-id | grep 'instance-id:' | sed -e $'s/[^[:print:]\t]//g' | cut -d ' ' -f 2)
 PUBLIC_HOSTNAME=$(docker run --rm peopleperhour/ec2-metadata --public-hostname | grep 'public-hostname:' | sed -e $'s/[^[:print:]\t]//g' | cut -d ' ' -f 2)
@@ -35,7 +35,7 @@ ENV_TAG_VALUE=$(docker run --rm -t $(tty &>/dev/null && echo "-i") -e "AWS_ACCES
 
 # Since we need the Name tag in AWS to have -dev | -staging | -prod at the end
 #  for the AWS console to be useful, we want to chop that part off and instead
-#  use a subdomain of .dev.sa.elastic.co etc.
+#  use a subdomain of .prod.hoffman-house.com etc.
 short_hostname=$(echo $NAME_TAG_VALUE | sed -e 's/-dev$//g' | sed -e 's/-staging$//g' | sed -e 's/-prod$//g' | sed -e $'s/[^[:print:]\t]//g')
 
 # We only want to update the DNS entry if they don't have the NO_DNS_UPDATE
@@ -48,7 +48,7 @@ if [ -z "$NO_DNS_UPDATE_TAG_VALUE" ]; then
     {
       "Action": "UPSERT",
       "ResourceRecordSet": {
-        "Name": "$short_hostname.$ENV_TAG_VALUE.$SA_DOMAIN",
+        "Name": "$short_hostname.$ENV_TAG_VALUE.$HH_DOMAIN",
         "Type": "CNAME",
         "TTL" : $TTL,
         "ResourceRecords": [
@@ -64,16 +64,16 @@ EOF
     retry_run_cmd "docker run --rm -t $(tty &>/dev/null && echo \"-i\") -e \"AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}\" -e \"AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}\" -e \"AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}\" -v /tmp/update_route53_mapping.json:/tmp/update_route53_mapping.json mesosphere/aws-cli route53 change-resource-record-sets --hosted-zone-id $HOSTED_ZONE_ID --change-batch file:///tmp/update_route53_mapping.json"
     check_run_cmd "rm -f /tmp/update_route53_mapping.json"
 
-    echo "Successfully associated instance $INSTANCE_ID with public hostname $PUBLIC_HOSTNAME to DNS CNAME for $short_hostname.$ENV_TAG_VALUE.$SA_DOMAIN"
+    echo "Successfully associated instance $INSTANCE_ID with public hostname $PUBLIC_HOSTNAME to DNS CNAME for $short_hostname.$ENV_TAG_VALUE.$HH_DOMAIN"
 else
     echo "NO_DNS_UPDATE tag was set, skipping route53 update for $INSTANCE_ID"
 fi
 
 # Update the syste hostname
-check_run_cmd "hostnamectl set-hostname $short_hostname.$ENV_TAG_VALUE.$SA_DOMAIN"
+check_run_cmd "hostnamectl set-hostname $short_hostname.$ENV_TAG_VALUE.$HH_DOMAIN"
 
 # Update /etc/resolv.conf to search our domain
-check_run_cmd "echo \"search $ENV_TAG_VALUE.$SA_DOMAIN\" >> /etc/resolv.conf"
-check_run_cmd "echo \"search $SA_DOMAIN\" >> /etc/resolv.conf"
+check_run_cmd "echo \"search $ENV_TAG_VALUE.$HH_DOMAIN\" >> /etc/resolv.conf"
+check_run_cmd "echo \"search $HH_DOMAIN\" >> /etc/resolv.conf"
 
 exit 0

@@ -11,8 +11,8 @@ get_cert() {
         --webroot \
         --staging \
         -w /var/www \
-        -m "chad@tindel.net" \
-        -d ctindel-squirrel.${SC_ENV}.sa.elastic.co
+        -m "stephan.a.hoffman@gmail.com" \
+        -d "hh-app.$SC_ENV.hoffman-house.com"
 }
 
 update_cert() {
@@ -22,7 +22,7 @@ update_cert() {
         ekho/certbot renew --staging
 }
 
-if [ ! -e "/mnt/data/letsencrypt/etc/live/ctindel-squirrel.prod.sa.elastic.co/privkey.pem" ]; then
+if [ ! -e "/mnt/data/letsencrypt/etc/live/hh-app.$SC_ENV.hoffman-house.com/privkey.pem" ]; then
     echo "Getting certificates..."
     get_cert
 else

@@ -26,6 +26,10 @@ function debug_print() {
     fi
 }
 
+function cleanup() {
+
+}
+
 function check_run_cmd() {
     cmd=$1
     local error_str="ERROR: Failed to run \"$cmd\""

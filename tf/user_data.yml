@@ -2,7 +2,7 @@
 debug: true
 disable_root: false
 hostname: ${hostname}
-fqdn: ${hostname}.${sa_dns_domain}
+fqdn: ${hostname}.${hh_dns_domain}
 manage_etc_hosts: true
 packages:
 growpart:
