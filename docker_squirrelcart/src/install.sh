@@ -19,3 +19,13 @@ rm -f $TMP_DIR/squirrelcart-hh.sql
 #do
 #    sleep 1
 #done
+
+# apache runs as the www-data user and we need to set some variables accordingly
+cat << EOF > /etc/ssmtp/ssmtp.conf
+root=postmaster
+mailhub=sc-smtp
+hostname=hoffman-house.com
+FromLineOverride=YES
+EOF
+
+echo "www-data:sales@hoffman-house.com" >> /etc/ssmtp/revaliases

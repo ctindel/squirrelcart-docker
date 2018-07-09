@@ -28,6 +28,7 @@ services:
       sc-build-net:
         aliases:
           - smtp
+          - mail
     expose:
       - 25
 

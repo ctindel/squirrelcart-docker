@@ -12,7 +12,7 @@ RUN apt-get update && \
         libheimbase1-heimdal libheimntlm0-heimdal libhx509-5-heimdal \
         libkrb5-26-heimdal libldap-2.4-2 libp11-kit0 libroken18-heimdal libsasl2-2 \
         libsqlite3-0 libswitch-perl libtasn1-3 libwind0-heimdal mime-support perl \
-        perl-modules \
+        perl-modules heirloom-mailx \
     && \
     apt-get clean && \
     rm -Rf /var/lib/apt/lists/* && \

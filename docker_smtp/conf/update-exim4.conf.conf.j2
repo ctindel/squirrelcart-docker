@@ -26,6 +26,8 @@ dc_relay_nets='{{ DC_RELAY_NETS|default('') }}'
 dc_smarthost='email-smtp.{{ AWS_REGION|default('us-east-1') }}.amazonaws.com::587'
 CFILEMODE='644'
 dc_use_split_config='true'
-dc_hide_mailname='true'
+dc_hide_mailname='false'
 dc_mailname_in_oh='true'
 dc_localdelivery='mail_spool'
+disable_ipv6=true
+

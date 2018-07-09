@@ -27,9 +27,15 @@ services:
     container_name: sc-smtp
     restart: on-failure
     environment:
+      # For use with exim
       AWS_REGION: "us-east-1"
       SMTP_USERNAME: ${SC_SMTP_USERNAME}
       SMTP_PASSWORD: ${SC_SMTP_PASSWORD}
+      # For use with the postfix container instead
+#      ID: ${SC_SMTP_USERNAME}
+#      KEY: ${SC_SMTP_PASSWORD}
+#      FROM: sales@hoffman-house.com
+#      HOSTNAME: www.hoffman-house.com
     networks:
       sc-net:
         aliases:
@@ -65,6 +71,7 @@ services:
     container_name: sc-app
     environment:
       - APACHE_SERVER_NAME=hh-app.${SC_ENV}.hoffman-house.com
+      - HOSTNAME=www.hoffman-house.com
     restart: on-failure
     networks:
       sc-net:

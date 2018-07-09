@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Purpose:  configure and run the amazon mail setup
+
+set -e
+set -u
+
+flag=/var/run/awsmail.configured.flag
+
+configure() {
+    hostname > /etc/mailname
+    
+    postconf -e "myhostname = ${HOSTNAME:-`hostname`}"
+    postconf -e "mynetworks = ${NETWORKS:-0.0.0.0/0}"
+    
+    postconf -e "relayhost = ${SES_ENDPOINT}:${SMTP_PORT}"
+    echo "${SES_ENDPOINT}:${SMTP_PORT} $ID:$KEY" > /etc/postfix/sasl-passwords
+    postmap hash:/etc/postfix/sasl-passwords
+    
+    if [ -n "${FROM:-}" ] ; then
+	echo "/.*/ ${FROM}" > /etc/postfix/generic
+	postmap hash:/etc/postfix/generic
+	postconf -e 'smtp_generic_maps = hash:/etc/postfix/generic'
+	postconf -e 'canonical_maps = regexp:/etc/postfix/generic'
+	postconf -e 'canonical_classes = envelope_sender'
+    fi
+}
+
+
+start() {
+    service rsyslog start
+    service cron start
+    service postfix start
+}
+
+
+if [ ! -f $flag ] ; then
+    configure
+fi
+
+# Do we need to configure arbitrary files?
+#perl -i -p -e 's/ENV_(\w)+/$ENV{$1}/g' 
+
+start
+
+if [ -n "$*" ] ; then
+    eval "$@"
+else
+    # Run forever
+    while sleep 100d;  do
+	true
+    done
+fi
